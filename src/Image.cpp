@@ -6,6 +6,7 @@
  */
 
 #include "Image.h"
+#include "Vec3.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -38,6 +39,19 @@ void Image::setPixel(int x, int y, unsigned char r, unsigned char g, unsigned ch
 	this->pixels[++index] = g;
 	this->pixels[++index] = b;
 	this->pixels[++index] = a;
+}
+
+void Image::setPixel(int x, int y, const Vec3 color){
+	if (!isValidPixelCoordinate(x,y))
+	{
+		return;
+	}
+
+	int index = (x + y*width)*CHANNELS_PER_PIXEL;
+	this->pixels[index] = (unsigned char)(255.f * color.r());
+	this->pixels[++index] = (unsigned char)(255.f * color.g());
+	this->pixels[++index] = (unsigned char)(255.f * color.b());
+	this->pixels[++index] = 255;
 }
 
 int Image::writePNGfile(std::string filename) {

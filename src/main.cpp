@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "Image.h"
+#include "Vec3.h"
 
 using namespace traceraptor;
 
@@ -18,10 +19,8 @@ int main(int argc, char* argv[]) {
     log("Beginning ray tracing");
     for (int j = 0; j < height; j++) {
     	for (int i = 0; i < width; i++) {
-    		unsigned char r = (unsigned char)(255.f * (float)i/(float)width);
-    		unsigned char g = (unsigned char)(255.f * (float)j/(float)height);
-    		unsigned char b = (unsigned char)(255.f * 0.2f);
-    		image.setPixel(i, j, r, g, b, 255);
+    		Vec3 color((float)i/(float)width, (float)j/(float)height, 0.2f);
+    		image.setPixel(i, j, color);
     	}
     }
 

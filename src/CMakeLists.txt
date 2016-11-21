@@ -3,6 +3,7 @@ set(target traceraptor)
 set(sources
   main.cpp
   Image.cpp
+  Vec3.cpp
 )
 
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
