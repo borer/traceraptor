@@ -28,13 +28,17 @@ bool Image::isValidPixelCoordinate(int x, int y)
 	return (x <= (width-CHANNELS_PER_PIXEL) && y <= (height-CHANNELS_PER_PIXEL) && x >= 0 && y >= 0);
 }
 
+int Image::getPixelIndex(int x, int y) {
+	return (x + (height-y)*width)*CHANNELS_PER_PIXEL;
+}
+
 void Image::setPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a){
 	if (!isValidPixelCoordinate(x,y))
 	{
 		return;
 	}
 
-	int index = (x + y*width)*CHANNELS_PER_PIXEL;
+	int index = getPixelIndex(x, y);
 	this->pixels[index] = r;
 	this->pixels[++index] = g;
 	this->pixels[++index] = b;
@@ -47,10 +51,10 @@ void Image::setPixel(int x, int y, const Vec3 color){
 		return;
 	}
 
-	int index = (x + y*width)*CHANNELS_PER_PIXEL;
-	this->pixels[index] = (unsigned char)(255.f * color.r());
-	this->pixels[++index] = (unsigned char)(255.f * color.g());
-	this->pixels[++index] = (unsigned char)(255.f * color.b());
+	int index = getPixelIndex(x, y);
+	this->pixels[index] = (unsigned char)(255.99f * color.r());
+	this->pixels[++index] = (unsigned char)(255.99f * color.g());
+	this->pixels[++index] = (unsigned char)(255.99f * color.b());
 	this->pixels[++index] = 255;
 }
 

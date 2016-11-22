@@ -20,6 +20,7 @@ class Image {
 	const int CHANNELS_PER_PIXEL = 4;
 
 	bool isValidPixelCoordinate(int x, int y);
+	int getPixelIndex(int x, int y);
 
 public:
 	Image(int width, int height);
