@@ -1,11 +1,14 @@
 #include <iostream>
 #include <string>
+#include <random>
+
 #include "Image.h"
 #include "Vec3.h"
 #include "Ray.h"
 #include "Hitable.h"
 #include "HitableList.h"
 #include "Sphere.h"
+#include "Camera.h"
 #include "float.h"
 
 using namespace traceraptor;
@@ -25,11 +28,17 @@ Vec3 color(const Ray& r, Hitable *world) {
 	}
 }
 
+float random_float(std::default_random_engine &generator) {
+	std::uniform_real_distribution<float> distribution(0.0,1.0);
+	return distribution(generator);
+}
+
 int main(int argc, char* argv[]) {
 	std::string fileName = (argc < 2) ? "output.png" : argv[1];
 
     const int width = 400;
     const int height =200;
+    const int ns = 100;
     Image image(width, height);
 
     Vec3 lower_left_corner(-2.0, -1.0, -1.0);
@@ -42,14 +51,19 @@ int main(int argc, char* argv[]) {
     list[1] = new Sphere(Vec3(0,-100.5,-1), 100);
     Hitable *world = new HitableList(list, 2);
 
+    Camera camera;
+    std::default_random_engine generator;
     log("Beginning ray tracing");
     for (int j = 0; j < height; j++) {
     	for (int i = 0; i < width; i++) {
-    		float u = (float)i/(float)width;
-    		float v = (float)j/(float)height;
-    		Ray r(origin, lower_left_corner + u*horizontal + v*vertical);
-
-    		Vec3 col = color(r, world);
+    		Vec3 col(0,0,0);
+    		for (int s=0; s < ns; s++) {
+    			float u = ((float)i + random_float(generator))/(float)width;
+    			float v = ((float)j + random_float(generator))/(float)height;
+    			Ray r = camera.get_ray(u, v);
+    			col += color(r, world);
+    		}
+    		col /= ns;
     		image.setPixel(i, j, col);
     	}
     }
