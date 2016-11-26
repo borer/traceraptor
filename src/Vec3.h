@@ -8,9 +8,8 @@
 #ifndef TRACERAPTOR_VEC3_H_
 #define TRACERAPTOR_VEC3_H_
 
-#include <math.h>
-#include <stdlib.h>
 #include <iostream>
+#include <cmath>
 
 namespace traceraptor {
 
@@ -42,7 +41,7 @@ public:
     inline Vec3& operator *= (const float t);
     inline Vec3& operator /= (const float t);
 
-    inline float length() const {return sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);}
+    inline float length() const {return std::sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);}
     inline float squared_length() const {return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];}
     inline void make_unit_vector();
 
@@ -50,7 +49,7 @@ public:
 };
 
 inline void Vec3::make_unit_vector() {
-	float k = 1.0/ sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);
+	float k = 1.0/ std::sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);
 	e[0] = k;
 	e[1] *= k;
 	e[2] *= k;

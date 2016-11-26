@@ -26,10 +26,10 @@ public:
 	}
 
 
-	Vec3 origin;
 	Vec3 lower_left_corner;
 	Vec3 horizontal;
 	Vec3 vertical;
+	Vec3 origin;
 };
 
 } /* namespace traceraptor */
