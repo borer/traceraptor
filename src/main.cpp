@@ -68,6 +68,7 @@ int main(int argc, char* argv[]) {
     			col += color(r, world, 0, MAX_RAY_BOUNCE);
     		}
     		col /= ns;
+    		col = Vec3(std::sqrt(col[0]), std::sqrt(col[1]), std::sqrt(col[2]));
     		image.setPixel(i, j, col);
     	}
     }

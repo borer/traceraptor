@@ -34,6 +34,8 @@ inline Vec3 lerp(const Vec3 &v1, const Vec3 &v2, float t) {
 	return ((1.0-t)*v1 + t*v2);
 }
 
+inline int pow2(int x) { return 1 << x; }
+
 } /* namespace traceraptor */
 
 #endif /* TRACERAPTOR_UTIL_MATH_H_ */
