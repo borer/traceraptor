@@ -13,10 +13,13 @@ namespace traceraptor {
 #include "Ray.h"
 #include "Vec3.h"
 
+class Material;
+
 struct hit_record{
     float t;
     Vec3 p;
     Vec3 normal;
+    Material *material_ptr;
 };
 
 class Hitable{

@@ -9,6 +9,7 @@
 #include "Sphere.h"
 #include "Camera.h"
 #include "UtilMath.h"
+#include "Material.h"
 
 using namespace traceraptor;
 
@@ -22,10 +23,12 @@ void log(std::string message) {
 
 Vec3 color(const Ray& r, Hitable *world, int current_ray_bounce, int MAX_RAY_BOUNCE) {
 	hit_record rec;
-	if (world->hit(r, 0.0, MAXFLOAT, rec)) {
-		if (current_ray_bounce < MAX_RAY_BOUNCE) {
-			Vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-			return 0.5*color(Ray(rec.p, target-rec.p), world, current_ray_bounce+1, MAX_RAY_BOUNCE);
+	if (world->hit(r, 0.001, MAXFLOAT, rec)) {
+		Ray scattered;
+		Vec3 attenuation;
+		if (current_ray_bounce < MAX_RAY_BOUNCE &&
+				rec.material_ptr->scatter(r, rec, attenuation, scattered)) {
+			return attenuation*color(scattered, world, current_ray_bounce+1, MAX_RAY_BOUNCE);
 		} else {
 			return Vec3(0, 0, 0);
 		}
@@ -39,9 +42,9 @@ Vec3 color(const Ray& r, Hitable *world, int current_ray_bounce, int MAX_RAY_BOU
 int main(int argc, char* argv[]) {
 	std::string fileName = (argc < 2) ? "output.png" : argv[1];
 
-    const int width = 200;
-    const int height = 100;
-    const int ns = 20;
+    const int width = 400;
+    const int height = 200;
+    const int ns = 50;
     const int MAX_RAY_BOUNCE = 50;
     Image image(width, height);
 
@@ -50,10 +53,12 @@ int main(int argc, char* argv[]) {
     Vec3 vertical(0.0, 2.0, 0.0);
     Vec3 origin(0.0, 0.0, 0.0);
 
-    Hitable *list[2];
-    list[0] = new Sphere(Vec3(0,0,-1), 0.5);
-    list[1] = new Sphere(Vec3(0,-100.5,-1), 100);
-    Hitable *world = new HitableList(list, 2);
+    Hitable *list[4];
+    list[0] = new Sphere(Vec3(0,0,-1), 0.5, new Lambertian(Vec3(0.8, 0.3, 0.3)));
+    list[1] = new Sphere(Vec3(0,-100.5,-1), 100, new Lambertian(Vec3(0.8,0.8,0.0)));
+    list[2] = new Sphere(Vec3(1.2,0,-1), 0.5, new Metal(Vec3(0.8,0.6,0.2)));
+    list[3] = new Sphere(Vec3(-1.2,0,-1), 0.5, new Metal(Vec3(0.8,0.8,0.8)));
+    Hitable *world = new HitableList(list, 4);
 
     Camera camera;
     log("Beginning ray tracing");

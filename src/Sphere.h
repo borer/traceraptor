@@ -9,17 +9,18 @@
 #define TRACERAPTOR_SPHERE_H_
 
 #include "Hitable.h"
+#include "Material.h"
 
 namespace traceraptor {
 
 class Sphere: public Hitable {
 public:
-	Sphere(Vec3 center, float radius) : center(center), radius(radius) {};
+	Sphere(Vec3 center, float radius, Material *obj_material) : center(center), radius(radius), material(obj_material) {};
 	virtual bool hit(const Ray &r, float tmin, float tmax, hit_record &rec) const;
-	virtual ~Sphere() {}
 
 	Vec3 center;
 	float radius;
+	Material *material;
 };
 
 bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
@@ -34,6 +35,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
 			rec.t = temp;
 			rec.p = r.point_at_parameter(rec.t);
 			rec.normal = (rec.p - center) / radius;
+			rec.material_ptr = material;
 			return true;
 		}
 
@@ -42,6 +44,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
 			rec.t = temp;
 			rec.p = r.point_at_parameter(rec.t);
 			rec.normal = (rec.p - center) / radius;
+			rec.material_ptr = material;
 			return true;
 		}
 	}
