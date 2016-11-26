@@ -21,6 +21,14 @@ inline float random01() {
 	return distribution(pseudo_random_generator);
 }
 
+Vec3 random_in_unit_disk() {
+	Vec3 p;
+    do {
+        p = 2.0*Vec3(random01(),random01(),0) - Vec3(1,1,0);
+    } while (dot(p,p) >= 1.0);
+    return p;
+}
+
 Vec3 random_in_unit_sphere() {
 	Vec3 p;
 	do {

@@ -31,29 +31,54 @@ Vec3 color(const Ray& r, Hitable *world, int current_ray_bounce, int MAX_RAY_BOU
 	}
 }
 
+Hitable *random_scene() {
+    int n = 500;
+    Hitable **list = new Hitable*[n+1];
+    list[0] =  new Sphere(Vec3(0,-1000,0), 1000, new Lambertian(Vec3(0.5, 0.5, 0.5)));
+    int i = 1;
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
+            float choose_mat = random01();
+            Vec3 center(a+0.9*random01(),0.2,b+0.9*random01());
+            if ((center-Vec3(4,0.2,0)).length() > 0.9) {
+                if (choose_mat < 0.8) {  // diffuse
+                	Vec3 color = Vec3(random01()*random01(), random01()*random01(), random01()*random01());
+                    list[i++] = new Sphere(center, 0.2, new Lambertian(color));
+                }
+                else if (choose_mat < 0.95) { // metal
+                    list[i++] = new Sphere(center, 0.2,
+                            new Metal(Vec3(0.5*(1 + random01()), 0.5*(1 + random01()), 0.5*(1 + random01())),  0.5*random01()));
+                }
+                else {  // glass
+                    list[i++] = new Sphere(center, 0.2, new Dielectric(1.5));
+                }
+            }
+        }
+    }
+
+    list[i++] = new Sphere(Vec3(0, 1, 0), 1.0, new Dielectric(1.5));
+    list[i++] = new Sphere(Vec3(-4, 1, 0), 1.0, new Lambertian(Vec3(0.4, 0.2, 0.1)));
+    list[i++] = new Sphere(Vec3(4, 1, 0), 1.0, new Metal(Vec3(0.7, 0.6, 0.5), 0.0));
+
+    return new HitableList(list,i);
+}
+
 int main(int argc, char* argv[]) {
 	std::string fileName = (argc < 2) ? "output.png" : argv[1];
 
-    const int width = 400;
-    const int height = 200;
-    const int ns = 30;
+    const int width = 1200;
+    const int height = 800;
+    const int ns = 1000;
     const int MAX_RAY_BOUNCE = 50;
     Image image(width, height);
 
-    Vec3 lower_left_corner(-2.0, -1.0, -1.0);
-    Vec3 horizontal(4.0, 0.0, 0.0);
-    Vec3 vertical(0.0, 2.0, 0.0);
-    Vec3 origin(0.0, 0.0, 0.0);
+    Hitable *world = random_scene();
+    Vec3 lookfrom(13,2,3);
+    Vec3 lookat(0,0,0);
+    float dist_to_focus = 10.0;
+    float aperture = 0.1;
 
-    Hitable *list[5];
-    list[0] = new Sphere(Vec3(0,0,-1), 0.5, new Lambertian(Vec3(0.8, 0.3, 0.3)));
-    list[1] = new Sphere(Vec3(0,-100.5,-1), 100, new Lambertian(Vec3(0.8,0.8,0.0)));
-    list[2] = new Sphere(Vec3(1,0,-1), 0.5, new Metal(Vec3(0.8,0.6,0.2), 1.0));
-    list[3] = new Sphere(Vec3(-1,0,-1), 0.5, new Dielectric(1.5));
-    list[4] = new Sphere(Vec3(-1,0,-1), -0.45, new Dielectric(1.5));
-    Hitable *world = new HitableList(list, 5);
-
-    Camera camera;
+    Camera camera(lookfrom, lookat, Vec3(0,1,0), 20, float(width)/float(height), aperture, dist_to_focus);
     Logger::log_debug("Beginning ray tracing");
     for (int j = 0; j < height; j++) {
     	for (int i = 0; i < width; i++) {
