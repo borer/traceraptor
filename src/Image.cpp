@@ -5,6 +5,7 @@
  *      Author: bogdan
  */
 
+#include <Logger.h>
 #include "Image.h"
 #include "Vec3.h"
 
@@ -25,16 +26,17 @@ Image::~Image() {
 
 bool Image::isValidPixelCoordinate(int x, int y)
 {
-	return (x <= (width-CHANNELS_PER_PIXEL) && y <= (height-CHANNELS_PER_PIXEL) && x >= 0 && y >= 0);
+	return (x < width && y < height && x >= 0 && y >= 0);
 }
 
 int Image::getPixelIndex(int x, int y) {
-	return (x + (height-y)*width)*CHANNELS_PER_PIXEL;
+	return (x + (height-(y+1))*width)*CHANNELS_PER_PIXEL;
 }
 
 void Image::setPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a){
 	if (!isValidPixelCoordinate(x,y))
 	{
+		Logger::log_debug("Discarded pixel : [" + std::to_string(x) + ", " + std::to_string(y) + "]");
 		return;
 	}
 
@@ -48,6 +50,7 @@ void Image::setPixel(int x, int y, unsigned char r, unsigned char g, unsigned ch
 void Image::setPixel(int x, int y, const Vec3 color){
 	if (!isValidPixelCoordinate(x,y))
 	{
+		Logger::log_debug("Discarded pixel : [" + std::to_string(x) + ", " + std::to_string(y) + "]");
 		return;
 	}
 

@@ -1,4 +1,4 @@
-#include <iostream>
+#include <Logger.h>
 #include <string>
 
 #include "Image.h"
@@ -12,14 +12,6 @@
 #include "Material.h"
 
 using namespace traceraptor;
-
-void log(const char* message) {
-	std::cout << std::endl << message << std::endl;
-}
-
-void log(std::string message) {
-	std::cout << std::endl << message << std::endl;
-}
 
 Vec3 color(const Ray& r, Hitable *world, int current_ray_bounce, int MAX_RAY_BOUNCE) {
 	hit_record rec;
@@ -56,15 +48,15 @@ int main(int argc, char* argv[]) {
     Hitable *list[4];
     list[0] = new Sphere(Vec3(0,0,-1), 0.5, new Lambertian(Vec3(0.8, 0.3, 0.3)));
     list[1] = new Sphere(Vec3(0,-100.5,-1), 100, new Lambertian(Vec3(0.8,0.8,0.0)));
-    list[2] = new Sphere(Vec3(1.2,0,-1), 0.5, new Metal(Vec3(0.8,0.6,0.2)));
-    list[3] = new Sphere(Vec3(-1.2,0,-1), 0.5, new Metal(Vec3(0.8,0.8,0.8)));
+    list[2] = new Sphere(Vec3(1,0,-1), 0.5, new Metal(Vec3(0.8,0.6,0.2), 1.0));
+    list[3] = new Sphere(Vec3(-1,0,-1), 0.5, new Metal(Vec3(0.8,0.8,0.8), 0.3));
     Hitable *world = new HitableList(list, 4);
 
     Camera camera;
-    log("Beginning ray tracing");
+    Logger::log_debug("Beginning ray tracing");
     for (int j = 0; j < height; j++) {
     	for (int i = 0; i < width; i++) {
-    		log("Iteration [" + std::to_string(i) + ", " + std::to_string(j) +"] out of [" + std::to_string(width) + ", " + std::to_string(height) + "]");
+    		Logger::log_debug("Iteration [" + std::to_string(i) + ", " + std::to_string(j) +"] out of [" + std::to_string(width) + ", " + std::to_string(height) + "]");
     		Vec3 col(0,0,0);
     		for (int s=0; s < ns; s++) {
     			float u = ((float)i + random01())/(float)width;
@@ -78,10 +70,10 @@ int main(int argc, char* argv[]) {
     	}
     }
 
-    log("Beginning image writing");
+    Logger::log_debug("Beginning image writing");
     int result = image.writePNGfile(fileName);
     if (result < 0) {
-    	log("cannot create image file");
+    	Logger::log_debug("cannot create image file");
     	return -1;
     }
 
