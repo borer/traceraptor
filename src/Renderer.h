@@ -10,6 +10,7 @@
 
 #include <Logger.h>
 #include <string>
+#include <thread>
 
 #include "Image.h"
 #include "Vec3.h"
@@ -25,7 +26,7 @@
 namespace traceraptor {
 
 class Renderer {
-	Hitable *random_scene() {
+	Hitable *random_scene() const {
 	    const int n = 500;
 	    Hitable **list = new Hitable*[n+1];
 	    std::shared_ptr<Material> mat(new Lambertian(Vec3(0.5, 0.5, 0.5)));
@@ -63,14 +64,14 @@ class Renderer {
 	    return new HitableList(list,i);
 	}
 
-	Vec3 color(const Ray& r, Hitable *world, int current_ray_bounce) {
+	Vec3 color(const Ray& r, Hitable *world, int current_ray_bounce, int max_ray_bounce) {
 			hit_record rec;
 			if (world->hit(r, 0.001, MAXFLOAT, rec)) {
 				Ray scattered;
 				Vec3 attenuation;
 				if (current_ray_bounce < max_ray_bounce &&
 						rec.material->scatter(r, rec, attenuation, scattered)) {
-					return attenuation*color(scattered, world, current_ray_bounce+1);
+					return attenuation*color(scattered, world, current_ray_bounce+1, max_ray_bounce);
 				} else {
 					return Vec3(0, 0, 0);
 				}
@@ -84,16 +85,11 @@ class Renderer {
 public:
 	Renderer(int width, int height, int ns, int max_ray_bounce) : width(width), height(height), ns(ns), max_ray_bounce(max_ray_bounce) {}
 
-	void render_random_scene(const Camera& camera, std::string filename) {
-		Hitable *world = random_scene();
-		render_scene(camera, world, filename);
-	}
+	void render_rectangle(int current_thread, int number_threads, const Camera &camera, Hitable *world, Image *image) {
+		int height_per_thread = height / number_threads;
+		int thread_height = (current_thread*height_per_thread) + height_per_thread;
 
-	void render_scene(const Camera& camera, Hitable *world, std::string filename) {
-		Image image(width, height);
-
-		Logger::log_debug("Beginning ray tracing");
-		for (int j = 0; j < height; j++) {
+		for (int j = current_thread; j < thread_height; j++) {
 			for (int i = 0; i < width; i++) {
 				Logger::log_debug("Iteration [" + std::to_string(i) + ", " + std::to_string(j) +"] out of [" + std::to_string(width) + ", " + std::to_string(height) + "]");
 				Vec3 col(0,0,0);
@@ -101,19 +97,45 @@ public:
 					float u = float(i + random01()) / float(width);
 					float v = float(j + random01()) / float(height);
 					Ray r = camera.get_ray(u, v);
-					col += color(r, world, 0);
+					col += color(r, world, 0, max_ray_bounce);
 				}
 				col /= ns;
 				col = Vec3(std::sqrt(col[0]), std::sqrt(col[1]), std::sqrt(col[2]));
-				image.setPixel(i, j, col);
+				image->setPixel(i, j, col);
 			}
 		}
+	}
 
-		Logger::log_debug("Beginning image writing");
+	void render_scene(const Camera& camera, Hitable *world, std::string filename, const int number_threads = 1) {
+		Image image(width, height);
+
+		Logger::log_debug("Beginning ray tracing");
+
+		std::vector<std::thread> renderThreads(number_threads);
+		for(int i = 0 ; i < number_threads; ++i) {
+			renderThreads[i] = std::thread(&Renderer::render_rectangle,
+					this,
+					i,
+					number_threads,
+					camera,
+					world,
+					&image);
+		}
+
+		for(int i = 0 ; i < number_threads; ++i) {
+			renderThreads[i].join();
+		}
+
+		Logger::log_debug("Image writing");
 		int result = image.writePNGfile(filename);
 		if (result < 0) {
 			Logger::log_debug("cannot create image file");
 		}
+	}
+
+	void render_random_scene(const Camera& camera, std::string filename, int number_threads = 1) {
+		Hitable *world = random_scene();
+		render_scene(camera, world, filename, number_threads);
 	}
 
 	int width;

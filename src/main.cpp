@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     Camera camera(lookfrom, lookat, Vec3(0,1,0), 20, float(width)/float(height), aperture, dist_to_focus);
 
     Renderer renderer(width, height, ns, MAX_RAY_BOUNCE);
-    renderer.render_random_scene(camera, fileName);
+    renderer.render_random_scene(camera, fileName, 4);
 
     return 0;
 }
