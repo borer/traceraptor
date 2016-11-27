@@ -15,12 +15,12 @@ namespace traceraptor {
 
 class Sphere: public Hitable {
 public:
-	Sphere(Vec3 center, float radius, Material *obj_material) : center(center), radius(radius), material(obj_material) {};
+	Sphere(Vec3 center, float radius, std::shared_ptr<Material> obj_material) : center(center), radius(radius), material(obj_material) {};
 	virtual bool hit(const Ray &r, float tmin, float tmax, hit_record &rec) const;
 
 	Vec3 center;
 	float radius;
-	Material *material;
+	std::shared_ptr<Material> material;
 };
 
 bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
@@ -35,7 +35,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
 			rec.t = temp;
 			rec.p = r.point_at_parameter(rec.t);
 			rec.normal = (rec.p - center) / radius;
-			rec.material_ptr = material;
+			rec.material = material;
 			return true;
 		}
 
@@ -44,7 +44,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
 			rec.t = temp;
 			rec.p = r.point_at_parameter(rec.t);
 			rec.normal = (rec.p - center) / radius;
-			rec.material_ptr = material;
+			rec.material = material;
 			return true;
 		}
 	}

@@ -30,7 +30,7 @@ public:
 		vertical = 2*half_height*focus_dist*v;
 	}
 
-	Ray get_ray(float s, float t) {
+	Ray get_ray(float s, float t) const {
 		Vec3 rd = lens_radius*random_in_unit_disk();
 		Vec3 offset = u * rd.x() + v * rd.y();
 		return Ray(origin + offset, lower_left_corner + s*horizontal + t*vertical - origin - offset);
