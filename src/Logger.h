@@ -15,6 +15,14 @@ namespace traceraptor {
 
 class Logger {
 public:
+	static void log_error(const char* message) {
+		std::cerr << message << std::endl;
+	}
+
+	static void log_error(std::string message) {
+		std::cerr << message << std::endl;
+	}
+
 	static void log_debug(const char* message) {
 		std::cout << message << std::endl;
 	}

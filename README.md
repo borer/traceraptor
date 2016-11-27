@@ -1,4 +1,4 @@
 # traceraptor
 a simple ray tracer
 
-![Alt simpleBallRenderer](images/simpleBall.png?raw=true "simpleBallRenderer")
+![Alt exampleSceneRenderer](images/scene1.png?raw=true "example scene")

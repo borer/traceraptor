@@ -91,7 +91,7 @@ public:
 
 		for (int j = current_thread; j < thread_height; j++) {
 			for (int i = 0; i < width; i++) {
-				Logger::log_debug("Iteration [" + std::to_string(i) + ", " + std::to_string(j) +"] out of [" + std::to_string(width) + ", " + std::to_string(height) + "]");
+//				Logger::log_debug("Iteration [" + std::to_string(i) + ", " + std::to_string(j) +"] out of [" + std::to_string(width) + ", " + std::to_string(height) + "]");
 				Vec3 col(0,0,0);
 				for (int s=0; s < ns; s++) {
 					float u = float(i + random01()) / float(width);
@@ -113,6 +113,7 @@ public:
 
 		std::vector<std::thread> renderThreads(number_threads);
 		for(int i = 0 ; i < number_threads; ++i) {
+			Logger::log_debug("Starting render thread " + std::to_string(i));
 			renderThreads[i] = std::thread(&Renderer::render_rectangle,
 					this,
 					i,
@@ -124,12 +125,13 @@ public:
 
 		for(int i = 0 ; i < number_threads; ++i) {
 			renderThreads[i].join();
+			Logger::log_debug("Render thread " + std::to_string(i) + " has finished");
 		}
 
 		Logger::log_debug("Image writing");
 		int result = image.writePNGfile(filename);
 		if (result < 0) {
-			Logger::log_debug("cannot create image file");
+			Logger::log_error("Cannot create image file");
 		}
 	}
 
