@@ -18,7 +18,7 @@ namespace traceraptor {
 
 class Material {
 public :
-	virtual bool scatter(const Ray &r_in, const hit_record &rec, Vec3 &attenuation, Ray& scattered) const = 0;
+	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const = 0;
 	virtual ~Material() {}
 
 	Vec3 reflect(const Vec3 &v, const Vec3 &n) const{
@@ -42,10 +42,10 @@ class Lambertian: public Material{
 public:
     Lambertian(const Vec3& e): albedo(e){}
 
-    virtual bool scatter(const Ray &r_in, const hit_record &rec, Vec3 &attenuation, Ray& scattered) const{
+    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const{
     	UNUSED(r_in);
-        Vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        scattered = Ray(rec.p, target - rec.p);
+        Vec3 target = rec.hit_point + rec.normal + random_in_unit_sphere();
+        scattered = Ray(rec.hit_point, target - rec.hit_point);
         attenuation = albedo;
         return true;
     }
@@ -60,11 +60,11 @@ public:
     		fuzz = (f < 1) ? f : 1;
     }
 
-    virtual bool scatter(const Ray &r_in, const hit_record &rec, Vec3 &attenuation, Ray& scattered) const{
+    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const{
         Vec3 v = unit_vector(r_in.direction());
         Vec3 reflected = reflect(v, rec.normal);
 
-        scattered = Ray(rec.p, reflected + fuzz*random_in_unit_sphere());
+        scattered = Ray(rec.hit_point, reflected + fuzz*random_in_unit_sphere());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
@@ -83,7 +83,7 @@ public:
 	    return r0 + (1-r0)*pow((1 - cosine),5);
 	}
 
-	virtual bool scatter(const Ray& r_in, const hit_record& rec, Vec3& attenuation, Ray& scattered) const  {
+	virtual bool scatter(const Ray& r_in, const IntersectionInfo& rec, Vec3& attenuation, Ray& scattered) const  {
 		Vec3 outward_normal;
 		Vec3 reflected = reflect(r_in.direction(), rec.normal);
 		float ni_over_nt;
@@ -111,9 +111,9 @@ public:
 		}
 
 		if (random01() < reflect_prob) {
-			scattered = Ray(rec.p, reflected);
+			scattered = Ray(rec.hit_point, reflected);
 		} else {
-			scattered = Ray(rec.p, refracted);
+			scattered = Ray(rec.hit_point, refracted);
 		}
 
 		return true;

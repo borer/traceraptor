@@ -5,9 +5,7 @@
  *      Author: bogdan
  */
 
-#include <Logger.h>
 #include "Image.h"
-#include "Vec3.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -21,7 +19,7 @@ Image::Image(int width, int height) {
 }
 
 Image::~Image() {
-	delete this->pixels;
+	delete[] this->pixels;
 }
 
 bool Image::isValidPixelCoordinate(int x, int y)

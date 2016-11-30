@@ -106,6 +106,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wuninitialized
         -Wmissing-field-initializers
         
+        #-O3
+        #-msse3
+        
         $<$<CXX_COMPILER_ID:GNU>:
             -Wmaybe-uninitialized
             

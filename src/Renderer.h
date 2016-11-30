@@ -21,63 +21,26 @@
 #include "Camera.h"
 #include "UtilMath.h"
 #include "Material.h"
+#include "BVH.h"
 
 
 namespace traceraptor {
 
 class Renderer {
-	std::shared_ptr<HitableList> random_scene() const {
-	    const int n = 500;
-	    Hitable **list = new Hitable*[n+1];
-	    std::shared_ptr<Material> mat(new Lambertian(Vec3(0.5, 0.5, 0.5)));
-	    list[0] =  new Sphere(Vec3(0,-1000,0), 1000, mat);
-	    int i = 1;
-	    for (int a = -11; a < 11; a++) {
-	        for (int b = -11; b < 11; b++) {
-	            float choose_mat = random01();
-	            Vec3 center(a+0.9*random01(),0.2,b+0.9*random01());
-	            if ((center-Vec3(4,0.2,0)).length() > 0.9) {
-	                if (choose_mat < 0.8) {
-	                	Vec3 color = Vec3(random01()*random01(), random01()*random01(), random01()*random01());
-	                	std::shared_ptr<Material> diffuse(new Lambertian(color));
-	                    list[i++] = new Sphere(center, 0.2, diffuse);
-	                }
-	                else if (choose_mat < 0.95) {
-	                	std::shared_ptr<Material> metal(new Metal(Vec3(0.5*(1 + random01()), 0.5*(1 + random01()), 0.5*(1 + random01())),  0.5*random01()));
-	                    list[i++] = new Sphere(center, 0.2, metal);
-	                }
-	                else {
-	                	std::shared_ptr<Material> glass(new Dielectric(1.5));
-	                    list[i++] = new Sphere(center, 0.2, glass);
-	                }
-	            }
-	        }
-	    }
 
-	    std::shared_ptr<Material> glass(new Dielectric(1.5));
-	    list[i++] = new Sphere(Vec3(0, 1, 0), 1.0, glass);
-	    std::shared_ptr<Material> diffuse(new Lambertian(Vec3(0.4, 0.2, 0.1)));
-	    list[i++] = new Sphere(Vec3(-4, 1, 0), 1.0, diffuse);
-	    std::shared_ptr<Material> metal(new Metal(Vec3(0.7, 0.6, 0.5), 0.0));
-	    list[i++] = new Sphere(Vec3(4, 1, 0), 1.0, metal);
-
-	    std::shared_ptr<HitableList> world(new HitableList(list,i));
-	    return world;
-	}
-
-	Vec3 shade(const Ray& r, const std::shared_ptr<Hitable> world, int current_ray_bounce, int max_ray_bounce) {
-			hit_record rec;
-			if (world->hit(r, 0.001, MAXFLOAT, rec)) {
+	Vec3 shade(const Ray& ray, const BVH &world, int current_ray_bounce) {
+		IntersectionInfo rec;
+			if (world.getIntersection(ray, rec, false)) {
 				Ray scattered;
 				Vec3 attenuation;
 				if (current_ray_bounce < max_ray_bounce &&
-						rec.material->scatter(r, rec, attenuation, scattered)) {
-					return attenuation * shade(scattered, world, current_ray_bounce+1, max_ray_bounce);
+						rec.material->scatter(ray, rec, attenuation, scattered)) {
+					return attenuation * shade(scattered, world, current_ray_bounce+1);
 				} else {
 					return Vec3(0, 0, 0);
 				}
 			} else {
-				Vec3 unit_direction = unit_vector(r.direction());
+				Vec3 unit_direction = unit_vector(ray.direction());
 				float t = 0.5*(unit_direction.y() + 1.0);
 				return lerp(Vec3(1.0, 1.0, 1.0), Vec3(0.5, 0.7, 1.0), t);
 			}
@@ -86,7 +49,7 @@ class Renderer {
 public:
 	Renderer(int width, int height, int ns, int max_ray_bounce) : width(width), height(height), ns(ns), max_ray_bounce(max_ray_bounce) {}
 
-	void render_rectangle(int current_thread, int number_threads, const Camera &camera, const std::shared_ptr<Hitable> world, Image &image) {
+	void render_rectangle(int current_thread, int number_threads, const Camera &camera, const BVH &world, Image &image) {
 		int height_per_thread = height / number_threads;
 		int thread_height = (current_thread*height_per_thread) + height_per_thread;
 
@@ -98,7 +61,7 @@ public:
 					float u = float(i + random01()) / float(width);
 					float v = float(j + random01()) / float(height);
 					Ray r = camera.get_ray(u, v);
-					col += shade(r, world, 0, max_ray_bounce);
+					col += shade(r, world, 0);
 				}
 				col /= ns;
 				col = Vec3(std::sqrt(col[0]), std::sqrt(col[1]), std::sqrt(col[2]));
@@ -107,7 +70,7 @@ public:
 		}
 	}
 
-	void render_scene(const Camera& camera, const std::shared_ptr<Hitable> world, const std::string &filename, const int number_threads = 1) {
+	void render_scene(const Camera& camera, const BVH &world, const std::string &filename, const int number_threads = 1) {
 		Image image(width, height);
 
 		Logger::log_debug("Beginning ray tracing");
@@ -120,7 +83,7 @@ public:
 					i,
 					number_threads,
 					std::ref(camera),
-					world,
+					std::ref(world),
 					std::ref(image));
 		}
 
@@ -134,11 +97,6 @@ public:
 		if (result < 0) {
 			Logger::log_error("Cannot create image file");
 		}
-	}
-
-	void render_random_scene(const Camera& camera, const std::string &filename, int number_threads = 1) {
-		std::shared_ptr<HitableList> world = random_scene();
-		render_scene(camera, world, filename, number_threads);
 	}
 
 	int width;

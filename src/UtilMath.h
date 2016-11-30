@@ -14,14 +14,14 @@
 
 namespace traceraptor {
 
-std::default_random_engine pseudo_random_generator;
+static std::default_random_engine pseudo_random_generator;
 
 inline float random01() {
 	std::uniform_real_distribution<float> distribution(0.0,1.0);
 	return distribution(pseudo_random_generator);
 }
 
-Vec3 random_in_unit_disk() {
+static Vec3 random_in_unit_disk() {
 	Vec3 p;
     do {
         p = 2.0*Vec3(random01(),random01(),0) - Vec3(1,1,0);
@@ -29,7 +29,7 @@ Vec3 random_in_unit_disk() {
     return p;
 }
 
-Vec3 random_in_unit_sphere() {
+static Vec3 random_in_unit_sphere() {
 	Vec3 p;
 	do {
 		p = 2.0 * Vec3(random01(), random01(), random01()) - Vec3(1,1,1);
@@ -41,6 +41,9 @@ Vec3 random_in_unit_sphere() {
 inline Vec3 lerp(const Vec3 &v1, const Vec3 &v2, float t) {
 	return ((1.0-t)*v1 + t*v2);
 }
+
+inline float traceraptor_min(float a, float b) { return a < b ? a : b; }
+inline float traceraptor_max(float a, float b) { return a > b ? a : b; }
 
 inline int pow2(int x) { return 1 << x; }
 

@@ -93,6 +93,18 @@ inline Vec3 operator / (const Vec3 &v1, float t) {
 	return Vec3(v1.e[0]/t, v1.e[1]/t, v1.e[2]/t);
 }
 
+inline Vec3 component_min(const Vec3& a, const Vec3& b) {
+	return Vec3(a[0] < b[0] ? a[0] : b[0],
+			a[1] < b[1] ? a[1] : b[1],
+			a[2] < b[2] ? a[2] : b[2]);
+}
+
+inline Vec3 component_max(const Vec3& a, const Vec3& b) {
+	return Vec3(a[0] > b[0] ? a[0] : b[0],
+			  	a[1] > b[1] ? a[1] : b[1],
+			  	a[2] > b[2] ? a[2] : b[2]);
+}
+
 inline Vec3& Vec3::operator +=(const Vec3& v2) {
 	e[0] += v2[0];
 	e[1] += v2[1];

@@ -10,20 +10,23 @@
 
 #include "Hitable.h"
 #include "Material.h"
+#include "BBox.h"
 
 namespace traceraptor {
 
 class Sphere: public Hitable {
 public:
 	Sphere(Vec3 center, float radius, std::shared_ptr<Material> obj_material) : center(center), radius(radius), material(obj_material) {};
-	virtual bool hit(const Ray &r, float tmin, float tmax, hit_record &rec) const;
+	virtual bool hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const;
+	virtual BBox get_bbox() const;
+	virtual Vec3 get_centroid() const;
 
 	Vec3 center;
 	float radius;
 	std::shared_ptr<Material> material;
 };
 
-bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
+bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const {
 	Vec3 oc = r.origin() - center;
 	float a = dot(r.direction(), r.direction());
 	float b = dot(oc, r.direction());
@@ -33,23 +36,33 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, hit_record &rec) const {
 		float temp = (-b - sqrt(discriminant))/ a;
 		if (temp < tmax && temp > tmin){
 			rec.t = temp;
-			rec.p = r.point_at_parameter(rec.t);
-			rec.normal = (rec.p - center) / radius;
+			rec.hit_point = r.point_at_parameter(rec.t);
+			rec.normal = (rec.hit_point - center) / radius;
 			rec.material = material;
+			rec.hit_something = true;
 			return true;
 		}
 
 		temp = (-b + sqrt(discriminant))/ a;
 		if (temp < tmax && temp > tmin){
 			rec.t = temp;
-			rec.p = r.point_at_parameter(rec.t);
-			rec.normal = (rec.p - center) / radius;
+			rec.hit_point = r.point_at_parameter(rec.t);
+			rec.normal = (rec.hit_point - center) / radius;
 			rec.material = material;
+			rec.hit_something = true;
 			return true;
 		}
 	}
 
 	return false;
+}
+
+BBox Sphere::get_bbox() const {
+	return BBox(center-Vec3(radius,radius,radius), center+Vec3(radius,radius,radius));
+}
+
+Vec3 Sphere::get_centroid() const {
+    return center;
 }
 
 } /* namespace traceraptor */

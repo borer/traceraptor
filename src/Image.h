@@ -10,6 +10,7 @@
 
 #include <string>
 #include "Vec3.h"
+#include "Logger.h"
 
 namespace traceraptor {
 
