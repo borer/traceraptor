@@ -50,7 +50,7 @@ void manual_setup(std::string filename) {
     list[3] = new Sphere(Vec3(-1,0,0), 0.5, std::shared_ptr<Material>(new Dielectric(1.2)));
     list[4] = new Sphere(Vec3(-1,0,0), -0.45, std::shared_ptr<Material>(new Dielectric(1.2)));
     list[5] = new Sphere(Vec3(1,0,-1), 0.5, std::shared_ptr<Material>(new Lambertian(Vec3(0.4, 0.2, 0.1))));
-    Hitable *world = new HitableList(list, 6);
+    std::shared_ptr<HitableList> world(new HitableList(list, 6));
 
     Renderer renderer(width, height, ns, MAX_RAY_BOUNCE);
     renderer.render_scene(camera, world, filename, 4);
