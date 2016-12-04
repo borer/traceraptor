@@ -13,7 +13,7 @@ std::vector<std::shared_ptr<Hitable>> create_random_scene() {
 	const int n = 489;
 	std::vector<std::shared_ptr<Hitable>> list(n);
 	std::shared_ptr<Material> mat(new Lambertian(Vec3(0.5, 0.5, 0.5)));
-	list[0] =  std::shared_ptr<Hitable>(new Sphere(Vec3(0,-800,0), 800, mat));
+	list[0] =  std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000,0), 1000, mat));
 	int i = 1;
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -82,7 +82,7 @@ void manual_setup(std::string filename) {
 
 	std::vector<std::shared_ptr<Hitable>> list(6);
     list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,0,0), 0.5, std::shared_ptr<Material>(new Lambertian(Vec3(0.8, 0.3, 0.3)))));
-    list[1] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,-2000.5,0), 2000, std::shared_ptr<Material>(new Lambertian(Vec3(0.5, 0.5, 0.5)))));
+    list[1] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000.5,0), 1000, std::shared_ptr<Material>(new Lambertian(Vec3(0.5, 0.5, 0.5)))));
     list[2] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,0), 0.5, std::shared_ptr<Material>(new Metal(Vec3(0.7, 0.6, 0.5), 0.2))));
     list[3] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0), 0.5, std::shared_ptr<Material>(new Dielectric(1.2))));
     list[4] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0), -0.45, std::shared_ptr<Material>(new Dielectric(1.2))));
@@ -96,8 +96,8 @@ void manual_setup(std::string filename) {
 int main(int argc, char* argv[]) {
 	std::string filename = (argc < 2) ? "output.png" : argv[1];
 
-	manual_setup(filename);
-//	random_setup(filename);
+//	manual_setup(filename);
+	random_setup(filename);
 
     return 0;
 }

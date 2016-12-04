@@ -54,7 +54,7 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
     	IntersectionInfo current;
 
         const std::shared_ptr<Hitable> obj = build_prims[node.start+o];
-        bool hit = obj->hit(ray, 0.00001f, MAXFLOAT, current);
+        bool hit = obj->hit(ray, default_tmin, default_tmax, current);
 
         if (hit) {
           // If we're only looking for occlusion, then any hit is good enough
