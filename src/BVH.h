@@ -8,8 +8,8 @@
 #ifndef TRACERAPTOR_BVH_H_
 #define TRACERAPTOR_BVH_H_
 
-#include "BBox.h"
 #include <vector>
+#include "BBox.h"
 #include "Ray.h"
 #include "Hitable.h"
 #include "Logger.h"

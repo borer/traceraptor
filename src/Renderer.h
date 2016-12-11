@@ -16,7 +16,6 @@
 #include "Vec3.h"
 #include "Ray.h"
 #include "Hitable.h"
-#include "HitableList.h"
 #include "Sphere.h"
 #include "Camera.h"
 #include "UtilMath.h"

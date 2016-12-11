@@ -18,11 +18,20 @@ class Material;
 class BBox;
 class Hitable;
 
+class UV {
+public:
+	UV(float u, float v) : u(u), v(v) {}
+
+	float u;
+	float v;
+};
+
 class IntersectionInfo {
 public:
-	IntersectionInfo() : t(0), hit_point(), normal(), material(NULL), hit_something(false) {}
+	IntersectionInfo() : t(0), uv(0,0), hit_point(), normal(), material(NULL), hit_something(false) {}
 
     float t;
+    UV uv;
     Vec3 hit_point;
     Vec3 normal;
     std::shared_ptr<Material> material;
@@ -37,6 +46,7 @@ public:
     virtual bool hit(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const = 0;
     virtual BBox get_bbox() const = 0;
     virtual Vec3 get_centroid() const = 0;
+    virtual UV get_uv(const Vec3& point) const = 0;
 };
 
 } /* namespace traceraptor */

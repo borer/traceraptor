@@ -6,14 +6,19 @@
 #include "Sphere.h"
 #include "Renderer.h"
 #include "BVH.h"
+#include "Texture.h"
 
 using namespace traceraptor;
 
 std::vector<std::shared_ptr<Hitable>> create_random_scene() {
 	const int n = 489;
 	std::vector<std::shared_ptr<Hitable>> list(n);
-	std::shared_ptr<Material> mat(new Lambertian(Vec3(0.5, 0.5, 0.5)));
-	list[0] =  std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000,0), 1000, mat));
+	std::shared_ptr<Material> mat_ground(new Lambertian(
+			std::make_shared<CheckerTexture>(
+					std::make_shared<ConstantTexture>(Vec3(0.5, 0.5, 0.5)),
+					std::make_shared<ConstantTexture>(Vec3(1,1,1)),
+					10)));
+	list[0] =  std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000,0), 1000, mat_ground));
 	int i = 1;
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -21,7 +26,7 @@ std::vector<std::shared_ptr<Hitable>> create_random_scene() {
 			Vec3 center(a+0.9*random01(),0.2,b+0.9*random01());
 			if (choose_mat < 0.8) {
 				Vec3 color = Vec3(random01()*random01(), random01()*random01(), random01()*random01());
-				std::shared_ptr<Material> diffuse(new Lambertian(color));
+				std::shared_ptr<Material> diffuse(new Lambertian(std::make_shared<ConstantTexture>(color)));
 				list[i++] = std::shared_ptr<Hitable>(new Sphere(center, 0.2, diffuse));
 			}
 			else if (choose_mat < 0.95) {
@@ -39,7 +44,7 @@ std::vector<std::shared_ptr<Hitable>> create_random_scene() {
 	list[i++] = std::shared_ptr<Hitable>(new Sphere(Vec3(0, 1, 0), 1.0, glass));
 	std::shared_ptr<Material> glass2(new Dielectric(1.5));
 	list[i++] = std::shared_ptr<Hitable>(new Sphere(Vec3(0, 1, 0), -0.95, glass2));
-	std::shared_ptr<Material> diffuse(new Lambertian(Vec3(0.4, 0.2, 0.1)));
+	std::shared_ptr<Material> diffuse(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.4, 0.2, 0.1))));
 	list[i++] = std::shared_ptr<Hitable>(new Sphere(Vec3(-4, 1, 0), 1.0, diffuse));
 	std::shared_ptr<Material> metal(new Metal(Vec3(0.7, 0.6, 0.5), 0.0));
 	list[i++] = std::shared_ptr<Hitable>(new Sphere(Vec3(4, 1, 0), 1.0, metal));
@@ -81,12 +86,24 @@ void manual_setup(std::string filename) {
 	Camera camera(lookfrom, lookat, Vec3(0,1,0), 20, float(width)/float(height), aperture, dist_to_focus);
 
 	std::vector<std::shared_ptr<Hitable>> list(6);
-    list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,0,0), 0.5, std::shared_ptr<Material>(new Lambertian(Vec3(0.8, 0.3, 0.3)))));
-    list[1] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000.5,0), 1000, std::shared_ptr<Material>(new Lambertian(Vec3(0.5, 0.5, 0.5)))));
-    list[2] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,0), 0.5, std::shared_ptr<Material>(new Metal(Vec3(0.7, 0.6, 0.5), 0.2))));
-    list[3] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0), 0.5, std::shared_ptr<Material>(new Dielectric(1.2))));
-    list[4] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0), -0.45, std::shared_ptr<Material>(new Dielectric(1.2))));
-    list[5] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,-1), 0.5, std::shared_ptr<Material>(new Lambertian(Vec3(0.4, 0.2, 0.1)))));
+    list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,0,0),
+    		0.5,
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.8, 0.3, 0.3))))));
+    list[1] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000.5,0),
+    		1000,
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.5, 0.5, 0.5))))));
+    list[2] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,0),
+    		0.5,
+			std::shared_ptr<Material>(new Metal(Vec3(0.7, 0.6, 0.5), 0.2))));
+    list[3] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0),
+    		0.5,
+			std::shared_ptr<Material>(new Dielectric(1.2))));
+    list[4] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0),
+    		-0.45,
+			std::shared_ptr<Material>(new Dielectric(1.2))));
+    list[5] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,-1),
+    		0.5,
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.4, 0.2, 0.1))))));
     BVH world(list);
 
     Renderer renderer(width, height, ns, MAX_RAY_BOUNCE);

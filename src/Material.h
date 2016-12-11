@@ -11,6 +11,7 @@
 #include "Vec3.h"
 #include "Ray.h"
 #include "UtilMath.h"
+#include "Texture.h"
 
 #define UNUSED(expr) (void)(expr)
 
@@ -40,17 +41,18 @@ public :
 
 class Lambertian: public Material{
 public:
-    Lambertian(const Vec3& e): albedo(e){}
+    explicit Lambertian(std::shared_ptr<Texture> texture): albedo(texture){}
 
-    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const{
+    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const {
     	UNUSED(r_in);
         Vec3 target = rec.hit_point + rec.normal + random_in_unit_sphere();
         scattered = Ray(rec.hit_point, target - rec.hit_point);
-        attenuation = albedo;
+        attenuation = albedo->value(rec.uv.u, rec.uv.v, rec.hit_point);
         return true;
     }
 
-    Vec3 albedo;
+
+    std::shared_ptr<Texture> albedo;
 };
 
 class Metal: public Material{
@@ -75,7 +77,7 @@ public:
 
 class Dielectric : public Material {
 public:
-	Dielectric(float ri) : ref_idx(ri) {}
+	explicit Dielectric(float ri) : ref_idx(ri) {}
 
 	float schlick(float cosine, float ref_idx) const {
 	    float r0 = (1-ref_idx) / (1+ref_idx);

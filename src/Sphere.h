@@ -20,6 +20,7 @@ public:
 	virtual bool hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const;
 	virtual BBox get_bbox() const;
 	virtual Vec3 get_centroid() const;
+	virtual UV get_uv(const Vec3& point) const;
 
 	Vec3 center;
 	float radius;
@@ -39,6 +40,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) co
 			rec.hit_point = r.point_at_parameter(rec.t);
 			rec.normal = (rec.hit_point - center) / radius;
 			rec.material = material;
+			rec.uv = get_uv(rec.normal);
 			rec.hit_something = true;
 			return true;
 		}
@@ -49,6 +51,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) co
 			rec.hit_point = r.point_at_parameter(rec.t);
 			rec.normal = (rec.hit_point - center) / radius;
 			rec.material = material;
+			rec.uv = get_uv(rec.normal);
 			rec.hit_something = true;
 			return true;
 		}
@@ -63,6 +66,15 @@ BBox Sphere::get_bbox() const {
 
 Vec3 Sphere::get_centroid() const {
     return center;
+}
+
+UV Sphere::get_uv(const Vec3& point) const {
+	 float phi = atan2(point.z(), point.x());
+	 float theta = asin(point.y());
+	 float u = 1-(phi + M_PI) / (2*M_PI);
+	 float v = (theta + M_PI/2) / M_PI;
+
+	 return UV(u,v);
 }
 
 } /* namespace traceraptor */
