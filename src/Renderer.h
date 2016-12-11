@@ -27,10 +27,10 @@ namespace traceraptor {
 
 class RenderChunk {
 public:
-	RenderChunk(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {}
+	RenderChunk(int x, int y, int max_x, int max_y) : min_x(x), min_y(y), max_x(max_x), max_y(max_y) {}
 
-	int x,y;
-	int width, height;
+	int min_x,min_y;
+	int max_x, max_y;
 	std::atomic_flag is_processed = ATOMIC_FLAG_INIT;
 };
 
@@ -42,9 +42,9 @@ class Renderer {
 
 		for(int i = 0; i < width; i+=size) {
 			for(int j = 0; j < height; j+=size) {
-				int chunk_width = i+size > width ? width-i : i+size;
-				int chunk_height = j+size > height ? height-j : j+size;
-				render_chunks.push_back(std::make_shared<RenderChunk>(i,j,chunk_width,chunk_height));
+				int max_width = i+size > width ? width : i+size;
+				int max_height = j+size > height ? height : j+size;
+				render_chunks.push_back(std::make_shared<RenderChunk>(i,j,max_width,max_height));
 			}
 		}
 
@@ -70,11 +70,12 @@ class Renderer {
 		}
 
 public:
-	Renderer(int width, int height, int ns, int max_ray_bounce) : width(width), height(height), ns(ns), max_ray_bounce(max_ray_bounce) {}
+	Renderer(int width, int height, int ns, int max_ray_bounce) :
+		width(width), height(height), ns(ns), max_ray_bounce(max_ray_bounce) {}
 
 	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera &camera, const BVH &world, Image &image) {
-		for (int i = chunk->x; i < chunk->width; i++) {
-			for (int j = chunk->y; j < chunk->height; j++) {
+		for (int i = chunk->min_x; i < chunk->max_x; i++) {
+			for (int j = chunk->min_y; j < chunk->max_y; j++) {
 				Vec3 col(0,0,0);
 				for (int s=0; s < ns; s++) {
 					float u = float(i + random01()) / float(width);

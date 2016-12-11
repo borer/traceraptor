@@ -1,4 +1,5 @@
 #include <string>
+#include <chrono>
 
 #include "Logger.h"
 #include "Vec3.h"
@@ -113,8 +114,20 @@ void manual_setup(std::string filename) {
 int main(int argc, char* argv[]) {
 	std::string filename = (argc < 2) ? "output.png" : argv[1];
 
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+	start = std::chrono::system_clock::now();
+
 //	manual_setup(filename);
 	random_setup(filename);
+
+	end = std::chrono::system_clock::now();
+	std::chrono::system_clock::duration elapsed_time = end-start;
+
+	std::chrono::seconds seconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed_time);
+	long long elapsed_minutes = seconds.count() / 60;
+	long long elapsed_seconds = seconds.count() % 60;
+
+	Logger::log_debug("duration : " + std::to_string(elapsed_minutes) + "mins, " + std::to_string(elapsed_seconds) + "secs");
 
     return 0;
 }
