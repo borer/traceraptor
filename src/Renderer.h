@@ -31,7 +31,7 @@ public:
 
 	int x,y;
 	int width, height;
-	std::atomic_flag is_available = ATOMIC_FLAG_INIT;
+	std::atomic_flag is_processed = ATOMIC_FLAG_INIT;
 };
 
 class Renderer {
@@ -92,7 +92,7 @@ public:
 	void render_worker(const std::vector<std::shared_ptr<RenderChunk>> &chunks, const Camera &camera, const BVH &world, Image &image) {
 		int chunks_size = chunks.size();
 		for(int i = 0; i < chunks_size; i++) {
-			if (chunks[i]->is_available.test_and_set()) {
+			if (!chunks[i]->is_processed.test_and_set()) {
 //				Logger::log_debug("Rendering chunk " + std::to_string(i) + " out of " + std::to_string(chunks_size));
 				render_chunk(chunks[i], camera, world, image);
 			}
