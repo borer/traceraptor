@@ -27,7 +27,7 @@ public:
 	Image(int width, int height);
 	virtual ~Image();
 
-	void setPixel(int x, int y, const Vec3 color);
+	void setPixel(int x, int y, const Vec3 &color);
 	void setPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 	int writePNGfile(std::string filename);
 };

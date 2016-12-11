@@ -45,7 +45,7 @@ void Image::setPixel(int x, int y, unsigned char r, unsigned char g, unsigned ch
 	this->pixels[++index] = a;
 }
 
-void Image::setPixel(int x, int y, const Vec3 color){
+void Image::setPixel(int x, int y, const Vec3 &color){
 	if (!isValidPixelCoordinate(x,y))
 	{
 		Logger::log_debug("Discarded pixel : [" + std::to_string(x) + ", " + std::to_string(y) + "]");
