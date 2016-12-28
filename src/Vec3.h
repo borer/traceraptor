@@ -44,6 +44,7 @@ public:
     inline float length() const {return std::sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);}
     inline float squared_length() const {return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];}
     inline void make_unit_vector();
+    inline Vec3& clamp01();
 
     float e[3];
 };
@@ -151,6 +152,19 @@ inline Vec3& Vec3::operator /=(float t) {
 	e[0] *= k;
 	e[1] *= k;
 	e[2] *= k;
+
+	return *this;
+}
+
+inline Vec3& Vec3::clamp01() {
+	e[0] = e[0] > 1 ? 1 : e[0];
+	e[0] = e[0] < 0 ? 0 : e[0];
+
+	e[1] = e[1] > 1 ? 1 : e[1];
+	e[1] = e[1] < 0 ? 0 : e[1];
+
+	e[2] = e[2] > 1 ? 1 : e[2];
+	e[2] = e[2] < 0 ? 0 : e[2];
 
 	return *this;
 }

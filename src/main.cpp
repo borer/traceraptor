@@ -66,7 +66,7 @@ void random_setup(std::string filename){
 
 	Camera camera(lookfrom, lookat, Vec3(0,1,0), 20, float(width)/float(height), aperture, dist_to_focus);
 
-	Renderer renderer(width, height, ns, MAX_RAY_BOUNCE);
+	Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
 	std::vector<std::shared_ptr<Hitable>> world_objects = create_random_scene();
 	BVH world(world_objects);
 
@@ -107,7 +107,45 @@ void manual_setup(std::string filename) {
 			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.4, 0.2, 0.1))))));
     BVH world(list);
 
-    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE);
+    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
+    renderer.render_scene(camera, world, filename, 4);
+}
+
+void manual_setup_light(std::string filename) {
+	const int width = 800;
+	const int height = 400;
+	const int ns = 700;
+	const int MAX_RAY_BOUNCE = 50;
+
+	Vec3 lookfrom(-7,3,-4);
+	Vec3 lookat(0,0,0);
+	float dist_to_focus = 10.0;
+	float aperture = 0.1;
+
+	Camera camera(lookfrom, lookat, Vec3(0,1,0), 20, float(width)/float(height), aperture, dist_to_focus);
+
+	std::vector<std::shared_ptr<Hitable>> list(6);
+    list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,1,0),
+    		0.5,
+			std::shared_ptr<Material>(new DiffuseLight(std::make_shared<ConstantTexture>(Vec3(0.5, 1, 1))))));
+    list[1] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,-1000.5,0),
+       		1000,
+   			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.5, 0.5, 0.5))))));
+    list[2] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,0),
+    		0.5,
+			std::shared_ptr<Material>(new Metal(Vec3(0.7, 0.6, 0.5), 0.2))));
+    list[3] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0),
+    		0.5,
+			std::shared_ptr<Material>(new Dielectric(1.2))));
+    list[4] = std::shared_ptr<Hitable>(new Sphere(Vec3(-1,0,0),
+    		-0.45,
+			std::shared_ptr<Material>(new Dielectric(1.2))));
+    list[5] = std::shared_ptr<Hitable>(new Sphere(Vec3(1,0,-1),
+    		0.5,
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3(0.4, 0.2, 0.1))))));
+    BVH world(list);
+
+    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, false);
     renderer.render_scene(camera, world, filename, 4);
 }
 
@@ -118,7 +156,8 @@ int main(int argc, char* argv[]) {
 	start = std::chrono::system_clock::now();
 
 //	manual_setup(filename);
-	random_setup(filename);
+//	random_setup(filename);
+	manual_setup_light(filename);
 
 	end = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration elapsed_time = end-start;

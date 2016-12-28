@@ -20,6 +20,14 @@ namespace traceraptor {
 class Material {
 public :
 	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const = 0;
+
+	virtual Vec3 emitted(float u, float v, const Vec3 &p) const {
+		UNUSED(u);
+		UNUSED(v);
+		UNUSED(p);
+		return Vec3(0,0,0);
+	}
+
 	virtual ~Material() {}
 
 	Vec3 reflect(const Vec3 &v, const Vec3 &n) const{
@@ -63,8 +71,8 @@ public:
     }
 
     virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const{
-        Vec3 v = unit_vector(r_in.direction());
-        Vec3 reflected = reflect(v, rec.normal);
+        Vec3 ray_direction_unit = unit_vector(r_in.direction());
+        Vec3 reflected = reflect(ray_direction_unit, rec.normal);
 
         scattered = Ray(rec.hit_point, reflected + fuzz*random_in_unit_sphere());
         attenuation = albedo;
@@ -123,6 +131,26 @@ public:
 
 	float ref_idx;
 };
+
+class DiffuseLight : public Material  {
+public:
+	DiffuseLight(std::shared_ptr<Texture> a) : emit(a) {}
+
+	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray &scattered) const {
+		UNUSED(r_in);
+		UNUSED(rec);
+		UNUSED(attenuation);
+		UNUSED(scattered);
+		return false;
+	}
+
+	virtual Vec3 emitted(float u, float v, const Vec3 &p) const {
+		return emit->value(u, v, p) *4 ;// + Vec3(2,2,2);
+	}
+
+	std::shared_ptr<Texture> emit;
+};
+
 
 } /* namespace traceraptor */
 
