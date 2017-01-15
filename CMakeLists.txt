@@ -21,4 +21,4 @@ list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 add_subdirectory(src)
-
+add_subdirectory(test)
