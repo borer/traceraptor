@@ -22,8 +22,8 @@ struct BVHFlatNode {
 };
 
 class BVH {
-	const float default_tmin = 0.001f;
-	const float default_tmax = MAXFLOAT;
+	static const float default_tmin;
+	static const float default_tmax;
 
 	unsigned int nNodes, nLeafs, leafSize;
 	std::vector<std::shared_ptr<Hitable>> build_prims;

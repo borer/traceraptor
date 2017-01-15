@@ -18,6 +18,7 @@ include(cmake/CompileOptions.cmake)
 
 set(CUSTOM_INCLUDE_DIRECTORIES)
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/src")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 add_subdirectory(src)

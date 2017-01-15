@@ -114,8 +114,8 @@ void manual_setup(std::string filename) {
 void manual_setup_light(std::string filename) {
 	const int width = 800;
 	const int height = 400;
-	const int ns = 700;
-	const int MAX_RAY_BOUNCE = 50;
+	const int ns = 5;
+	const int MAX_RAY_BOUNCE = 8;
 
 	Vec3 lookfrom(-7,3,-4);
 	Vec3 lookat(0,0,0);

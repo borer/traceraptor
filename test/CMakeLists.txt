@@ -1,11 +1,10 @@
-include_directories(. ../src)
 include_directories(${CUSTOM_INCLUDE_DIRECTORIES})
 
-file(GLOB TEST_SOURCES *.c)
+file(GLOB TEST_SOURCES *.cpp)
+file(GLOB TRACERAPTOR_SOURCES ../src/*.cpp)
 
 #set enable testing
 enable_testing()
-#add_definitions("${DEFAULT_COMPILE_OPTIONS}")
 
 #adding tests foreach test source file
 foreach(filename ${TEST_SOURCES})
@@ -17,11 +16,27 @@ foreach(filename ${TEST_SOURCES})
 		string(REGEX REPLACE ".*/" "" testname "${filename}" )
 	endif(WIN32)
 
-	#remove .c extension
-	string(REGEX REPLACE ".c" "" testname "${testname}" )
+	#remove .cpp extension
+	string(REGEX REPLACE ".cpp" "" testname "${testname}" )
 
 	#create executable
-	add_executable(${testname} ${OBJECTS} ${filename})
+	add_executable(${testname} ${OBJECTS} ${TRACERAPTOR_SOURCES} ${filename})
+
+    set_target_properties(${testname}
+        PROPERTIES
+        ${DEFAULT_PROJECT_OPTIONS}
+    )
+    
+    target_compile_definitions(${testname}
+        PRIVATE
+        ${DEFAULT_COMPILE_DEFINITIONS}
+    )
+    
+    target_compile_options(${testname}
+        PRIVATE
+        ${DEFAULT_COMPILE_OPTIONS}
+    )
+	
 	#configure for testing
 	add_test(${testname} ${testname})
 

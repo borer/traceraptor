@@ -9,6 +9,9 @@
 
 namespace traceraptor {
 
+const float BVH::default_tmin = 0.001f;
+const float BVH::default_tmax = MAXFLOAT;
+
 //! Node for storing state information during traversal.
 struct BVHTraversal {
   unsigned int i; // Node
@@ -236,7 +239,6 @@ void BVH::build()
 
   // Copy the temp node data to a flat array
   flatTree.reserve(nNodes);
-  BVHFlatNode *test = buildnodes.data();
   for(unsigned int n=0; n<nNodes; ++n)
     flatTree[n] = buildnodes[n];
 }

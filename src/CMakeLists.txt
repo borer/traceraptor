@@ -1,7 +1,10 @@
 set(target traceraptor)
 
+list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_subdirectory(examples)
+
 set(sources
-  main.cpp
   Image.cpp
   BBox.cpp
   BVH.cpp
@@ -9,9 +12,9 @@ set(sources
 
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# Build executable
-add_executable(${target}
-  ${sources}
+# Build library
+message("generating library ${target}")
+add_library(${target} STATIC ${sources}
 )
 
 target_include_directories(${target}
