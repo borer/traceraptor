@@ -40,5 +40,5 @@ foreach(filename ${TEST_SOURCES})
 	#configure for testing
 	add_test(${testname} ${testname})
 
-	message("${testname} ${filename}")
+	message("found test ${filename} : ${testname}")
 endforeach(filename)

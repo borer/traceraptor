@@ -116,7 +116,7 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
 BVH::~BVH() {
 }
 
-BVH::BVH(std::vector<std::shared_ptr<Hitable>> &objects, unsigned int leafSize)
+BVH::BVH(std::vector<std::shared_ptr<Hitable>> &objects, unsigned int leafSize = 4)
   : nNodes(0), nLeafs(0), leafSize(leafSize), build_prims(objects) {
 
 	Logger::log_debug("Started building BVH");
