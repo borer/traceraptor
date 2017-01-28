@@ -1,3 +1,5 @@
+#define TRACERAPTOR_STATISTICS
+
 #include <string>
 #include <chrono>
 
@@ -152,21 +154,15 @@ void manual_setup_light(std::string filename) {
 int main(int argc, char* argv[]) {
 	std::string filename = (argc < 2) ? "output.png" : argv[1];
 
-	std::chrono::time_point<std::chrono::system_clock> start, end;
-	start = std::chrono::system_clock::now();
+	RayTracingStatistics::getInstance().start_time_tracking();
 
 //	manual_setup(filename);
-//	random_setup(filename);
-	manual_setup_light(filename);
+	random_setup(filename);
+//	manual_setup_light(filename);
 
-	end = std::chrono::system_clock::now();
-	std::chrono::system_clock::duration elapsed_time = end-start;
-
-	std::chrono::seconds seconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed_time);
-	long long elapsed_minutes = seconds.count() / 60;
-	long long elapsed_seconds = seconds.count() % 60;
-
-	Logger::log_debug("duration : " + std::to_string(elapsed_minutes) + "mins, " + std::to_string(elapsed_seconds) + "secs");
+	RayTracingStatistics::getInstance().end_time_tracking();
+	std::string report = RayTracingStatistics::getInstance().generate_report();
+	Logger::log_debug(report);
 
     return 0;
 }

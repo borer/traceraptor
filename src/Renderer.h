@@ -21,7 +21,7 @@
 #include "UtilMath.h"
 #include "Material.h"
 #include "BVH.h"
-
+#include "RayTracingStatistics.h"
 
 namespace traceraptor {
 
@@ -92,6 +92,7 @@ public:
 			for (int j = chunk->min_y; j < chunk->max_y; j++) {
 				Vec3 color(0,0,0);
 				for (int s=0; s < ns; s++) {
+					INCREMENT_PRIMARY_RAY_STATISTICS
 					float u = float(i + random01()) / float(width);
 					float v = float(j + random01()) / float(height);
 					Ray r = camera.get_ray(u, v);

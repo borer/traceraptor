@@ -6,6 +6,7 @@
  */
 
 #include "BVH.h"
+#include "RayTracingStatistics.h"
 
 namespace traceraptor {
 
@@ -116,7 +117,7 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
 BVH::~BVH() {
 }
 
-BVH::BVH(std::vector<std::shared_ptr<Hitable>> &objects, unsigned int leafSize = 4)
+BVH::BVH(std::vector<std::shared_ptr<Hitable>> &objects, unsigned int leafSize)
   : nNodes(0), nLeafs(0), leafSize(leafSize), build_prims(objects) {
 
 	Logger::log_debug("Started building BVH");
@@ -155,6 +156,7 @@ void BVH::build()
   BVHFlatNode node;
   std::vector<BVHFlatNode> buildnodes;
   buildnodes.reserve(build_prims.size()*2);
+  RayTracingStatistics::getInstance().totalNumberPrimitives.store(build_prims.size());
 
   while(stackptr > 0) {
     // Pop the next item off of the stack

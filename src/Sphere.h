@@ -11,6 +11,7 @@
 #include "Hitable.h"
 #include "Material.h"
 #include "BBox.h"
+#include "RayTracingStatistics.h"
 
 namespace traceraptor {
 
@@ -28,6 +29,7 @@ public:
 };
 
 bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const {
+	INCREMENT_RAY_PRIMITIVES_TEST_STATISTICS;
 	Vec3 oc = r.origin() - center;
 	float a = dot(r.direction(), r.direction());
 	float b = dot(oc, r.direction());
@@ -42,6 +44,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) co
 			rec.material = material;
 			rec.uv = get_uv(rec.normal);
 			rec.hit_something = true;
+			INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
 			return true;
 		}
 
@@ -53,6 +56,7 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) co
 			rec.material = material;
 			rec.uv = get_uv(rec.normal);
 			rec.hit_something = true;
+			INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
 			return true;
 		}
 	}
