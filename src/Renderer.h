@@ -9,6 +9,7 @@
 #define TRACERAPTOR_RENDERER_H_
 
 #include <Logger.h>
+#include <MathUtil.h>
 #include <string>
 #include <thread>
 
@@ -18,7 +19,6 @@
 #include "Hitable.h"
 #include "Sphere.h"
 #include "Camera.h"
-#include "UtilMath.h"
 #include "Material.h"
 #include "BVH.h"
 #include "RayTracingStatistics.h"

@@ -8,9 +8,9 @@
 #ifndef TRACERAPTOR_BBOX_H_
 #define TRACERAPTOR_BBOX_H_
 
+#include <MathUtil.h>
 #include "Ray.h"
 #include "Vec3.h"
-#include "UtilMath.h"
 
 namespace traceraptor {
 

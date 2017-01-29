@@ -8,9 +8,9 @@
 #ifndef TRACERAPTOR_MATERIAL_H_
 #define TRACERAPTOR_MATERIAL_H_
 
+#include <MathUtil.h>
 #include "Vec3.h"
 #include "Ray.h"
-#include "UtilMath.h"
 #include "Texture.h"
 
 #define UNUSED(expr) (void)(expr)
@@ -53,7 +53,7 @@ public:
 
     virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const {
     	UNUSED(r_in);
-        Vec3 target = rec.hit_point + rec.normal + random_in_unit_sphere();
+        Vec3 target = rec.hit_point + rec.normal + MathUtil::random_in_unit_sphere();
         scattered = Ray(rec.hit_point, target - rec.hit_point);
         attenuation = albedo->value(rec.uv.u, rec.uv.v, rec.hit_point);
         return true;
@@ -74,7 +74,7 @@ public:
         Vec3 ray_direction_unit = unit_vector(r_in.direction());
         Vec3 reflected = reflect(ray_direction_unit, rec.normal);
 
-        scattered = Ray(rec.hit_point, reflected + fuzz*random_in_unit_sphere());
+        scattered = Ray(rec.hit_point, reflected + fuzz*MathUtil::random_in_unit_sphere());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }

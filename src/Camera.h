@@ -8,9 +8,9 @@
 #ifndef TRACERAPTOR_CAMERA_H_
 #define TRACERAPTOR_CAMERA_H_
 
+#include <MathUtil.h>
 #include "Vec3.h"
 #include "Ray.h"
-#include "UtilMath.h"
 
 namespace traceraptor {
 
@@ -31,7 +31,7 @@ public:
 	}
 
 	Ray get_ray(float s, float t) const {
-		Vec3 rd = lens_radius*random_in_unit_disk();
+		Vec3 rd = lens_radius*MathUtil::random_in_unit_disk();
 		Vec3 offset = u * rd.x() + v * rd.y();
 		return Ray(origin + offset, lower_left_corner + s*horizontal + t*vertical - origin - offset);
 	}
