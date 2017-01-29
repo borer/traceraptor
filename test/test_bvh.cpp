@@ -1,7 +1,5 @@
-#include<iostream>
-#include<stdio.h>
-#include <string>
-#include "minunit.h"
+#define CATCH_CONFIG_MAIN
+#include "catch.h"
 
 #include "Logger.h"
 #include "Vec3.h"
@@ -13,7 +11,7 @@
 
 using namespace traceraptor;
 
-char* test_simple_bvh() {
+bool test_simple_bvh() {
 
 	std::vector<std::shared_ptr<Hitable>> list(6);
 	list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3(0,0,0),
@@ -37,14 +35,9 @@ char* test_simple_bvh() {
 
 	BVH world(list, 3);
 
-	return NULL;
+	return true;
 }
 
-char* test_all() {
-	mu_suite_start();
-	mu_run_test(test_simple_bvh);
-
-	return NULL;
+TEST_CASE( "BVH", "[BVH]" ) {
+	 REQUIRE( test_simple_bvh() );
 }
-
-RUN_TESTS(test_all)
