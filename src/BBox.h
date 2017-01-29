@@ -20,7 +20,7 @@ public:
 	BBox(const Vec3& min, const Vec3& max);
 	BBox(const Vec3& p);
 
-	bool intersect(const Ray& ray, float &t) const;
+	bool intersect(const Ray& ray, float &tmin, float &tmax) const;
 	void expandToInclude(const Vec3& p);
 	void expandToInclude(const BBox& b);
 	unsigned int maxDimension() const;

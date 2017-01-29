@@ -30,6 +30,7 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
   intersection.t = 9999999.f;
   intersection.hit_something = false;
   float t_min0 = 0, t_min1 = 0;
+  float t_max0 = 0, t_max1 = 0;
   int closer, other;
 
   // Working set
@@ -75,8 +76,10 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
 
     } else { // Not a leaf
 
-      bool hitc0 = flatTree[node_index+1].bbox.intersect(ray, t_min0);
-      bool hitc1 = flatTree[node_index+node.rightOffset].bbox.intersect(ray, t_min1);
+      bool hitc0 = flatTree[node_index+1].bbox.intersect(ray, t_min0, t_max0);
+      INCREMENT_RAY_BBOX_TEST_STATISTICS
+      bool hitc1 = flatTree[node_index+node.rightOffset].bbox.intersect(ray, t_min1, t_max1);
+      INCREMENT_RAY_BBOX_TEST_STATISTICS
 
       if(hitc0 && hitc1) {
         // We assume that the left child is a closer hit...

@@ -1,5 +1,3 @@
-#define TRACERAPTOR_STATISTICS
-
 #include <string>
 #include <chrono>
 

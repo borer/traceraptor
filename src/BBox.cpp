@@ -39,11 +39,11 @@ float BBox::surfaceArea() const {
 	return 2.f*( extent.x()*extent.z() + extent.x()*extent.y() + extent.y()*extent.z() );
 }
 
-bool BBox::intersect(const Ray& ray, float &tmin) const {
+bool BBox::intersect(const Ray& ray, float &tmin, float &tmax) const {
 	float t0_x = (min[0]-ray.o[0])*ray.inv_d[0];
 	float t1_x = (max[0]-ray.o[0])*ray.inv_d[0];
 	tmin = traceraptor_min(t0_x, t1_x);
-	float tmax = traceraptor_max(t0_x, t1_x);
+	tmax = traceraptor_max(t0_x, t1_x);
 	if (tmax <= tmin)
 		return false;
 
