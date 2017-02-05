@@ -10,13 +10,13 @@
 
 namespace traceraptor {
 
-BBox::BBox(const Vec3& min, const Vec3& max)
+BBox::BBox(const Vec3f& min, const Vec3f& max)
   : min(min), max(max) { extent = max - min; centroid = extent/2.f; }
 
-BBox::BBox(const Vec3& p)
+BBox::BBox(const Vec3f& p)
   : min(p), max(p) { extent = max - min; centroid = extent/2.f; }
 
-void BBox::expandToInclude(const Vec3& p) {
+void BBox::expandToInclude(const Vec3f& p) {
 	min = component_min(min, p);
 	max = component_max(max, p);
 	extent = max - min;
@@ -32,13 +32,13 @@ void BBox::expandToInclude(const BBox& b) {
 
 unsigned int BBox::maxDimension() const {
 	unsigned int result = 0;
-	if(extent.y() > extent.x()) result = 1;
-	if(extent.z() > extent.y()) result = 2;
+	if(extent[1] > extent[0]) result = 1;
+	if(extent[2] > extent[1]) result = 2;
 	return result;
 }
 
 float BBox::surfaceArea() const {
-	return 2.f*( extent.x()*extent.z() + extent.x()*extent.y() + extent.y()*extent.z() );
+	return 2.f*( extent[0]*extent[2] + extent[0]*extent[1] + extent[1]*extent[2] );
 }
 
 bool BBox::intersect(const Ray& ray, float &tmin, float &tmax) const {

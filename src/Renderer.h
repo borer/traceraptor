@@ -10,11 +10,11 @@
 
 #include <Logger.h>
 #include <MathUtil.h>
+#include <Vec.h>
 #include <string>
 #include <thread>
 
 #include "Image.h"
-#include "Vec3.h"
 #include "Ray.h"
 #include "Hitable.h"
 #include "Sphere.h"
@@ -51,18 +51,18 @@ class Renderer {
 		return render_chunks;
 	}
 
-	Vec3 skybox_shade(const Ray& ray, Vec3 &top_color, Vec3 &bottom_color) {
-		Vec3 unit_direction = unit_vector(ray.direction());
-		float t = 0.5*(unit_direction.y() + 1.0);
+	Vec3f skybox_shade(const Ray& ray, Vec3f &top_color, Vec3f &bottom_color) {
+		Vec3f unit_direction = normalize(ray.direction());
+		float t = 0.5f*(unit_direction[1] + 1.0f);
 		return lerp(top_color, bottom_color, t);
 	}
 
-	Vec3 shade(const Ray& ray, const BVH &world, int current_ray_bounce, bool renderSkyBox) {
+	Vec3f shade(const Ray& ray, const BVH &world, int current_ray_bounce, bool renderSkyBox) {
 		IntersectionInfo rec;
 			if (world.getIntersection(ray, rec, false)) {
 				Ray scattered;
-				Vec3 attenuation;
-				Vec3 emitted = rec.material->emitted(rec.uv.u, rec.uv.v, rec.hit_point);
+				Vec3f attenuation;
+				Vec3f emitted = rec.material->emitted(rec.uv.u, rec.uv.v, rec.hit_point);
 
 				if (current_ray_bounce < max_ray_bounce &&
 						rec.material->scatter(ray, rec, attenuation, scattered)) {
@@ -73,11 +73,11 @@ class Renderer {
 				}
 			} else {
 				if (renderSkyBox) {
-					Vec3 top_color(1.0, 1.0, 1.0);
-					Vec3 bottom_color(0.5, 0.7, 1.0);
+					Vec3f top_color{1.0, 1.0, 1.0};
+					Vec3f bottom_color{0.5, 0.7, 1.0};
 					return skybox_shade(ray, top_color, bottom_color);
 				} else{
-					Vec3 black_color(0, 0, 0);
+					Vec3f black_color{0, 0, 0};
 					return black_color;
 				}
 			}
@@ -90,7 +90,7 @@ public:
 	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera &camera, const BVH &world, Image &image) {
 		for (int i = chunk->min_x; i < chunk->max_x; i++) {
 			for (int j = chunk->min_y; j < chunk->max_y; j++) {
-				Vec3 color(0,0,0);
+				Vec3f color{0,0,0};
 				for (int s=0; s < ns; s++) {
 					INCREMENT_PRIMARY_RAY_STATISTICS
 					float u = float(i + random01()) / float(width);
@@ -98,9 +98,9 @@ public:
 					Ray r = camera.get_ray(u, v);
 					color += shade(r, world, 0, render_skybox);
 				}
-				color /= ns;
-				color.clamp01();
-				color = Vec3(std::sqrt(color[0]), std::sqrt(color[1]), std::sqrt(color[2]));
+				color /= (float)ns;
+				color = component_clamp(color, 0.f, 1.f);
+				color = Vec3f{std::sqrt(color[0]), std::sqrt(color[1]), std::sqrt(color[2])};
 				image.setPixel(i, j, color);
 			}
 		}

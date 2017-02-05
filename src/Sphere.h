@@ -17,20 +17,20 @@ namespace traceraptor {
 
 class Sphere: public Hitable {
 public:
-	Sphere(Vec3 center, float radius, std::shared_ptr<Material> obj_material) : center(center), radius(radius), material(obj_material) {};
+	Sphere(Vec3f center, float radius, std::shared_ptr<Material> obj_material) : center(center), radius(radius), material(obj_material) {};
 	virtual bool hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const;
 	virtual BBox get_bbox() const;
-	virtual Vec3 get_centroid() const;
-	virtual UV get_uv(const Vec3& point) const;
+	virtual Vec3f get_centroid() const;
+	virtual UV get_uv(const Vec3f& point) const;
 
-	Vec3 center;
+	Vec3f center;
 	float radius;
 	std::shared_ptr<Material> material;
 };
 
 bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const {
 	INCREMENT_RAY_PRIMITIVES_TEST_STATISTICS;
-	Vec3 oc = r.origin() - center;
+	Vec3f oc = r.origin() - center;
 	float a = dot(r.direction(), r.direction());
 	float b = dot(oc, r.direction());
 	float c = dot(oc, oc) - radius*radius;
@@ -65,16 +65,16 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) co
 }
 
 BBox Sphere::get_bbox() const {
-	return BBox(center-Vec3(radius,radius,radius), center+Vec3(radius,radius,radius));
+	return BBox(center-Vec3f{radius,radius,radius}, center+Vec3f{radius,radius,radius});
 }
 
-Vec3 Sphere::get_centroid() const {
+Vec3f Sphere::get_centroid() const {
     return center;
 }
 
-UV Sphere::get_uv(const Vec3& point) const {
-	 float phi = atan2(point.z(), point.x());
-	 float theta = asin(point.y());
+UV Sphere::get_uv(const Vec3f& point) const {
+	 float phi = atan2(point[2], point[0]);
+	 float theta = asin(point[1]);
 	 float u = 1-(phi + M_PI) / (2*M_PI);
 	 float v = (theta + M_PI/2) / M_PI;
 

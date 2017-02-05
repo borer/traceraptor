@@ -8,8 +8,8 @@
 #ifndef TRACERAPTOR_HITABLE_H_
 #define TRACERAPTOR_HITABLE_H_
 
+#include <Vec.h>
 #include "Ray.h"
-#include "Vec3.h"
 #include "Hitable.h"
 
 namespace traceraptor {
@@ -32,8 +32,8 @@ public:
 
     float t;
     UV uv;
-    Vec3 hit_point;
-    Vec3 normal;
+    Vec3f hit_point;
+    Vec3f normal;
     std::shared_ptr<Material> material;
     bool hit_something;
 };
@@ -45,8 +45,8 @@ public:
 
     virtual bool hit(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const = 0;
     virtual BBox get_bbox() const = 0;
-    virtual Vec3 get_centroid() const = 0;
-    virtual UV get_uv(const Vec3& point) const = 0;
+    virtual Vec3f get_centroid() const = 0;
+    virtual UV get_uv(const Vec3f& point) const = 0;
 };
 
 } /* namespace traceraptor */

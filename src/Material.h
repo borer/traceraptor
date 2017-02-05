@@ -9,7 +9,7 @@
 #define TRACERAPTOR_MATERIAL_H_
 
 #include <MathUtil.h>
-#include "Vec3.h"
+#include <Vec.h>
 #include "Ray.h"
 #include "Texture.h"
 
@@ -19,27 +19,27 @@ namespace traceraptor {
 
 class Material {
 public :
-	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const = 0;
+	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3f &attenuation, Ray& scattered) const = 0;
 
-	virtual Vec3 emitted(float u, float v, const Vec3 &p) const {
+	virtual Vec3f emitted(float u, float v, const Vec3f &p) const {
 		UNUSED(u);
 		UNUSED(v);
 		UNUSED(p);
-		return Vec3(0,0,0);
+		return Vec3f{0,0,0};
 	}
 
 	virtual ~Material() {}
 
-	Vec3 reflect(const Vec3 &v, const Vec3 &n) const{
+	Vec3f reflect(const Vec3f &v, const Vec3f &n) const{
 		return v - n * (dot(v,n) * 2);
 	}
 
-	bool refract(const Vec3& v, const Vec3& n, float ni_over_nt, Vec3& refracted)  const {
-		Vec3 uv = unit_vector(v);
+	bool refract(const Vec3f& v, const Vec3f& n, float ni_over_nt, Vec3f& refracted)  const {
+		Vec3f uv = normalize(v);
 	    float dt = dot(uv, n);
-	    float discriminant = 1.0 - ni_over_nt*ni_over_nt*(1-dt*dt);
+	    float discriminant = 1.0f - ni_over_nt*ni_over_nt*(1-dt*dt);
 	    if (discriminant > 0) {
-	        refracted = ni_over_nt*(uv - n*dt) - n*sqrt(discriminant);
+	        refracted = ni_over_nt*(uv - n*dt) - n*(float)sqrt(discriminant);
 	        return true;
 	    }
 	    else
@@ -51,9 +51,9 @@ class Lambertian: public Material{
 public:
     explicit Lambertian(std::shared_ptr<Texture> texture): albedo(texture){}
 
-    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const {
+    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3f &attenuation, Ray& scattered) const {
     	UNUSED(r_in);
-        Vec3 target = rec.hit_point + rec.normal + MathUtil::random_in_unit_sphere();
+        Vec3f target = rec.hit_point + rec.normal + MathUtil::random_in_unit_sphere();
         scattered = Ray(rec.hit_point, target - rec.hit_point);
         attenuation = albedo->value(rec.uv.u, rec.uv.v, rec.hit_point);
         return true;
@@ -66,20 +66,20 @@ public:
 class Metal: public Material{
 public:
 
-    Metal(const Vec3& e, float f) : albedo(e)  {
+    Metal(const Vec3f& e, float f) : albedo(e)  {
     		fuzz = (f < 1) ? f : 1;
     }
 
-    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray& scattered) const{
-        Vec3 ray_direction_unit = unit_vector(r_in.direction());
-        Vec3 reflected = reflect(ray_direction_unit, rec.normal);
+    virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3f &attenuation, Ray& scattered) const{
+        Vec3f ray_direction_unit = normalize(r_in.direction());
+        Vec3f reflected = reflect(ray_direction_unit, rec.normal);
 
         scattered = Ray(rec.hit_point, reflected + fuzz*MathUtil::random_in_unit_sphere());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
 
-    Vec3 albedo;
+    Vec3f albedo;
     float fuzz;
 };
 
@@ -93,25 +93,25 @@ public:
 	    return r0 + (1-r0)*pow((1 - cosine),5);
 	}
 
-	virtual bool scatter(const Ray& r_in, const IntersectionInfo& rec, Vec3& attenuation, Ray& scattered) const  {
-		Vec3 outward_normal;
-		Vec3 reflected = reflect(r_in.direction(), rec.normal);
+	virtual bool scatter(const Ray& r_in, const IntersectionInfo& rec, Vec3f& attenuation, Ray& scattered) const  {
+		Vec3f outward_normal;
+		Vec3f reflected = reflect(r_in.direction(), rec.normal);
 		float ni_over_nt;
-		attenuation = Vec3(1.0, 1.0, 1.0);
-		Vec3 refracted;
+		attenuation = Vec3f{1.0, 1.0, 1.0};
+		Vec3f refracted;
 		float reflect_prob;
 		float cosine;
 		if (dot(r_in.direction(), rec.normal) > 0) {
 			outward_normal = -rec.normal;
 			ni_over_nt = ref_idx;
 //			cosine = ref_idx * dot(r_in.direction(), rec.normal) / r_in.direction().length();
-			cosine = dot(r_in.direction(), rec.normal) / r_in.direction().length();
+			cosine = dot(r_in.direction(), rec.normal) / length(r_in.direction());
 			cosine = sqrt(1 - ref_idx*ref_idx*(1-cosine*cosine));
 		}
 		else {
 			outward_normal = rec.normal;
 			ni_over_nt = 1.0 / ref_idx;
-			cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
+			cosine = -dot(r_in.direction(), rec.normal) / length(r_in.direction());
 		}
 
 		if (refract(r_in.direction(), outward_normal, ni_over_nt, refracted)) {
@@ -136,7 +136,7 @@ class DiffuseLight : public Material  {
 public:
 	DiffuseLight(std::shared_ptr<Texture> a) : emit(a) {}
 
-	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3 &attenuation, Ray &scattered) const {
+	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3f &attenuation, Ray &scattered) const {
 		UNUSED(r_in);
 		UNUSED(rec);
 		UNUSED(attenuation);
@@ -144,8 +144,8 @@ public:
 		return false;
 	}
 
-	virtual Vec3 emitted(float u, float v, const Vec3 &p) const {
-		return emit->value(u, v, p) *4 ;// + Vec3(2,2,2);
+	virtual Vec3f emitted(float u, float v, const Vec3f &p) const {
+		return emit->value(u, v, p) * 4.f ;// + Vec3(2,2,2);
 	}
 
 	std::shared_ptr<Texture> emit;

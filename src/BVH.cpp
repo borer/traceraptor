@@ -217,7 +217,7 @@ void BVH::build()
     // Partition the list of objects on this split
     unsigned int mid = start;
     for(unsigned int i=start; i < end ;++i) {
-      Vec3 centroid = (build_prims[i])->get_centroid();
+      Vec3f centroid = (build_prims[i])->get_centroid();
       if(centroid[split_dim] < split_coord ) {
         std::swap( (build_prims[i]), (build_prims[mid]) );
         ++mid;
