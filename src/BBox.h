@@ -16,7 +16,7 @@ namespace traceraptor {
 
 class BBox {
 public:
-	BBox() { }
+	BBox() {}
 	BBox(const Vec3& min, const Vec3& max);
 	BBox(const Vec3& p);
 
@@ -26,7 +26,7 @@ public:
 	unsigned int maxDimension() const;
 	float surfaceArea() const;
 
-	Vec3 min, max, extent;
+	Vec3 min, max, extent, centroid;
 };
 
 } /* namespace traceraptor */

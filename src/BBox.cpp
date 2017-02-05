@@ -11,21 +11,23 @@
 namespace traceraptor {
 
 BBox::BBox(const Vec3& min, const Vec3& max)
-  : min(min), max(max) { extent = max - min; }
+  : min(min), max(max) { extent = max - min; centroid = extent/2.f; }
 
 BBox::BBox(const Vec3& p)
-  : min(p), max(p) { extent = max - min; }
+  : min(p), max(p) { extent = max - min; centroid = extent/2.f; }
 
-  void BBox::expandToInclude(const Vec3& p) {
-    min = component_min(min, p);
-    max = component_max(max, p);
-    extent = max - min;
-  }
+void BBox::expandToInclude(const Vec3& p) {
+	min = component_min(min, p);
+	max = component_max(max, p);
+	extent = max - min;
+	centroid = extent/2.f;
+}
 
 void BBox::expandToInclude(const BBox& b) {
 	min = component_min(min, b.min);
 	max = component_max(max, b.max);
 	extent = max - min;
+	centroid = extent/2.f;
 }
 
 unsigned int BBox::maxDimension() const {
