@@ -155,7 +155,7 @@ void manual_setup_light(std::string filename) {
 void manual_triangle(std::string filename) {
 	const int width = 500;
 	const int height = 600;
-	const int ns = 5;
+	const int ns = 500;
 	const int MAX_RAY_BOUNCE = 5;
 
 	Vec3f lookfrom{0,1,4.5f};
@@ -169,9 +169,9 @@ void manual_triangle(std::string filename) {
 	std::shared_ptr<Material> redMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.65f, 0.05f, 0.05f}));
 	std::shared_ptr<Material> greenMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.12f, 0.45f, 0.15f}));
 	std::shared_ptr<Material> whiteMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.73f, 0.73f, 0.73f}));
-	std::shared_ptr<Material> lightMaterial = std::make_shared<Emissive>(std::make_shared<ConstantTexture>(Vec3f{1.0f, 1.0f, 1.0f}));
+	std::shared_ptr<Material> lightMaterial = std::make_shared<Emissive>(std::make_shared<ConstantTexture>(Vec3f{4.0f, 4.0f, 4.0f}));
 
-	std::vector<std::shared_ptr<Hitable>> list(12);
+	std::vector<std::shared_ptr<Hitable>> list(14);
 	int i = 0;
 	//red wall
     list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-1,0,-1}, Vec3f{-1,2,1}, Vec3f{-1,0,1}, redMaterial));
@@ -191,6 +191,10 @@ void manual_triangle(std::string filename) {
     // light
     list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-0.2,1.995,0.2}, Vec3f{0.2,1.995,-0.2}, Vec3f{0.2,1.995,0.2}, lightMaterial));
     list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{0.2,1.995,-0.2}, Vec3f{-0.2,1.995,0.2}, Vec3f{-0.2,1.995,-0.2}, lightMaterial));
+
+    list[i++] = std::shared_ptr<Hitable>(new Sphere(Vec3f{-0.5,0.5,0}, 0.5, std::shared_ptr<Material>(new Dielectric(1.2))));
+    list[i++] = std::shared_ptr<Hitable>(new Sphere(Vec3f{0.3,0.2,0.2}, 0.2,
+				std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1})))));
 
     BVH world(list);
 
