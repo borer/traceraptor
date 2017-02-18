@@ -1,13 +1,12 @@
 # traceraptor
-a simple ray tracer
+Simple path tracer
 
+##Demo scenes 
 ![Alt exampleSceneRenderer](images/scene1.png?raw=true "example scene")
-
-simple test scene
 
 ![Alt bigExampleSceneRenderer](images/randomScene20.png?raw=true "big example scene")
 
- scene with 500 spheres
 
 ![Alt lightExampleSceneRenderer](images/lightDemoScene.png?raw=true "light example scene")
- scene with emissive material
+
+![Alt_cornellBoxExample](images/cornell-box.png?raw=true "cornell box")

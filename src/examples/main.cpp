@@ -157,6 +157,8 @@ void manual_triangle(std::string filename) {
 	const int height = 600;
 	const int ns = 500;
 	const int MAX_RAY_BOUNCE = 5;
+	const int ns = 800;
+	const int MAX_RAY_BOUNCE = 8;
 
 	Vec3f lookfrom{0,1,4.5f};
 	Vec3f lookat{0,1,0};
