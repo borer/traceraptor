@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Hitable.h"
 #include "Sphere.h"
+#include "Triangle.h"
 #include "Renderer.h"
 #include "BVH.h"
 #include "Texture.h"
@@ -151,14 +152,41 @@ void manual_setup_light(std::string filename) {
     renderer.render_scene(camera, world, filename, 4);
 }
 
+void manual_triangle(std::string filename) {
+	const int width = 800;
+	const int height = 400;
+	const int ns = 5;
+	const int MAX_RAY_BOUNCE = 8;
+
+	Vec3f lookfrom{-7,3,-4};
+	Vec3f lookat{0,0,0};
+	float dist_to_focus = 10.0;
+	float aperture = 0.1;
+
+	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, 20, float(width)/float(height), aperture, dist_to_focus);
+
+	std::vector<std::shared_ptr<Hitable>> list(3);
+	list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3f{2,1,0}, 0.5,
+				std::shared_ptr<Material>(new DiffuseLight(std::make_shared<ConstantTexture>(Vec3f{0.5, 1, 1})))));
+    list[1] = std::shared_ptr<Hitable>(new Triangle(Vec3f{0,0,0},Vec3f{1,0,0},Vec3f{1,1,0},
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
+    list[2] = std::shared_ptr<Hitable>(new Triangle(Vec3f{0,0,0},Vec3f{0,1,0},Vec3f{1,1,0},
+    			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
+    BVH world(list);
+
+    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
+    renderer.render_scene(camera, world, filename, 4);
+}
+
 int main(int argc, char* argv[]) {
 	std::string filename = (argc < 2) ? "output.png" : argv[1];
 
 	RayTracingStatistics::getInstance().start_time_tracking();
 
 //	manual_setup(filename);
-	random_setup(filename);
+//	random_setup(filename);
 //	manual_setup_light(filename);
+	manual_triangle(filename);
 
 	RayTracingStatistics::getInstance().end_time_tracking();
 	std::string report = RayTracingStatistics::getInstance().generate_report();
