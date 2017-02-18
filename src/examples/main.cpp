@@ -130,7 +130,7 @@ void manual_setup_light(std::string filename) {
 	std::vector<std::shared_ptr<Hitable>> list(6);
     list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3f{0,1,0},
     		0.5,
-			std::shared_ptr<Material>(new DiffuseLight(std::make_shared<ConstantTexture>(Vec3f{0.5, 1, 1})))));
+			std::shared_ptr<Material>(new Emissive(std::make_shared<ConstantTexture>(Vec3f{0.5, 1, 1})))));
     list[1] = std::shared_ptr<Hitable>(new Sphere(Vec3f{0,-1000.5,0},
        		1000,
    			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
@@ -153,28 +153,48 @@ void manual_setup_light(std::string filename) {
 }
 
 void manual_triangle(std::string filename) {
-	const int width = 800;
-	const int height = 400;
+	const int width = 500;
+	const int height = 600;
 	const int ns = 5;
-	const int MAX_RAY_BOUNCE = 8;
+	const int MAX_RAY_BOUNCE = 5;
 
-	Vec3f lookfrom{-7,3,-4};
-	Vec3f lookat{0,0,0};
+	Vec3f lookfrom{0,1,4.5f};
+	Vec3f lookat{0,1,0};
 	float dist_to_focus = 10.0;
-	float aperture = 0.1;
+	float aperture = 0.0;
+	float vfov = 35;
 
-	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, 20, float(width)/float(height), aperture, dist_to_focus);
+	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, vfov, float(width)/float(height), aperture, dist_to_focus);
 
-	std::vector<std::shared_ptr<Hitable>> list(3);
-	list[0] = std::shared_ptr<Hitable>(new Sphere(Vec3f{2,1,0}, 0.5,
-				std::shared_ptr<Material>(new DiffuseLight(std::make_shared<ConstantTexture>(Vec3f{0.5, 1, 1})))));
-    list[1] = std::shared_ptr<Hitable>(new Triangle(Vec3f{0,0,0},Vec3f{1,0,0},Vec3f{1,1,0},
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
-    list[2] = std::shared_ptr<Hitable>(new Triangle(Vec3f{0,0,0},Vec3f{0,1,0},Vec3f{1,1,0},
-    			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
+	std::shared_ptr<Material> redMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.65f, 0.05f, 0.05f}));
+	std::shared_ptr<Material> greenMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.12f, 0.45f, 0.15f}));
+	std::shared_ptr<Material> whiteMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.73f, 0.73f, 0.73f}));
+	std::shared_ptr<Material> lightMaterial = std::make_shared<Emissive>(std::make_shared<ConstantTexture>(Vec3f{1.0f, 1.0f, 1.0f}));
+
+	std::vector<std::shared_ptr<Hitable>> list(12);
+	int i = 0;
+	//red wall
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-1,0,-1}, Vec3f{-1,2,1}, Vec3f{-1,0,1}, redMaterial));
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-1,0,-1}, Vec3f{-1,2,-1}, Vec3f{-1,2,1}, redMaterial));
+    // green wall
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{1,0,-1},Vec3f{1,0,1},Vec3f{1,2,1}, greenMaterial));
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{1,0,-1},Vec3f{1,2,1},Vec3f{1,2,-1}, greenMaterial));
+    // white wall
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{1,0,-1},Vec3f{1,2,-1},Vec3f{-1,0,-1}, whiteMaterial));
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-1,0,-1},Vec3f{1,2,-1},Vec3f{-1,2,-1}, whiteMaterial));
+    // white floor
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-1,0,1},Vec3f{1,0,1},Vec3f{1,0,-1}, whiteMaterial));
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{1,0,-1},Vec3f{-1,0,-1},Vec3f{-1,0,1}, whiteMaterial));
+    // white ceiling
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-1,2,1},Vec3f{1,2,-1},Vec3f{1,2,1}, whiteMaterial));
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{1,2,-1},Vec3f{-1,2,1},Vec3f{-1,2,-1}, whiteMaterial));
+    // light
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{-0.2,1.995,0.2}, Vec3f{0.2,1.995,-0.2}, Vec3f{0.2,1.995,0.2}, lightMaterial));
+    list[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{0.2,1.995,-0.2}, Vec3f{-0.2,1.995,0.2}, Vec3f{-0.2,1.995,-0.2}, lightMaterial));
+
     BVH world(list);
 
-    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
+    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, false);
     renderer.render_scene(camera, world, filename, 4);
 }
 

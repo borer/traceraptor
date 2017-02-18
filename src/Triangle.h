@@ -69,7 +69,7 @@ bool Triangle::hit(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) 
 
 	rec.t = t;
 	rec.hit_point = r.point_at_parameter(rec.t);
-	rec.normal = cross(edge1, edge2);
+	rec.normal = normalize(cross(edge1, edge2));
 	rec.material = material;
 	rec.uv = get_uv(rec.normal);
 	rec.hit_something = true;

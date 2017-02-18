@@ -104,7 +104,7 @@ public:
 		if (dot(r_in.direction(), rec.normal) > 0) {
 			outward_normal = -rec.normal;
 			ni_over_nt = ref_idx;
-//			cosine = ref_idx * dot(r_in.direction(), rec.normal) / r_in.direction().length();
+//			cosine = ref_idx * dot(r_in.direction(), rec.normal) / length(r_in.direction());
 			cosine = dot(r_in.direction(), rec.normal) / length(r_in.direction());
 			cosine = sqrt(1 - ref_idx*ref_idx*(1-cosine*cosine));
 		}
@@ -132,9 +132,9 @@ public:
 	float ref_idx;
 };
 
-class DiffuseLight : public Material  {
+class Emissive : public Material  {
 public:
-	DiffuseLight(std::shared_ptr<Texture> a) : emit(a) {}
+	Emissive(std::shared_ptr<Texture> a) : emit(a) {}
 
 	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3f &attenuation, Ray &scattered) const {
 		UNUSED(r_in);
@@ -145,7 +145,7 @@ public:
 	}
 
 	virtual Vec3f emitted(float u, float v, const Vec3f &p) const {
-		return emit->value(u, v, p) * 4.f ;// + Vec3(2,2,2);
+		return emit->value(u, v, p) * 4.f ;// + Vec3f(2,2,2);
 	}
 
 	std::shared_ptr<Texture> emit;
