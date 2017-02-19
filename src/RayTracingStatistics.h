@@ -74,11 +74,11 @@ public:
 		return report;
 	}
 
-	std::atomic_int totalNumberPrimitives;
-	std::atomic_int numberPrimaryRays;
-	std::atomic_int numberRayPrimitiveTests;
-	std::atomic_int numberRayPrimitiveIntersections;
-	std::atomic_int numberRayBBoxTests;
+	std::atomic_ullong totalNumberPrimitives;
+	std::atomic_ullong numberPrimaryRays;
+	std::atomic_ullong numberRayPrimitiveTests;
+	std::atomic_ullong numberRayPrimitiveIntersections;
+	std::atomic_ullong numberRayBBoxTests;
 };
 
 }

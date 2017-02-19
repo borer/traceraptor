@@ -62,7 +62,7 @@ class Renderer {
 			if (world.getIntersection(ray, rec, false)) {
 				Ray scattered;
 				Vec3f attenuation;
-				Vec3f emitted = rec.material->emitted(rec.uv.u, rec.uv.v, rec.hit_point);
+				Vec3f emitted = rec.material->emitted(ray, rec);
 
 				if (current_ray_bounce < max_ray_bounce &&
 						rec.material->scatter(ray, rec, attenuation, scattered)) {

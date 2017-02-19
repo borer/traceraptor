@@ -21,10 +21,9 @@ class Material {
 public :
 	virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Vec3f &attenuation, Ray& scattered) const = 0;
 
-	virtual Vec3f emitted(float u, float v, const Vec3f &p) const {
-		UNUSED(u);
-		UNUSED(v);
-		UNUSED(p);
+	virtual Vec3f emitted(const Ray& ray, const IntersectionInfo& info) const {
+		UNUSED(ray);
+		UNUSED(info);
 		return Vec3f{0,0,0};
 	}
 
@@ -144,8 +143,11 @@ public:
 		return false;
 	}
 
-	virtual Vec3f emitted(float u, float v, const Vec3f &p) const {
-		return emit->value(u, v, p) * 4.f ;// + Vec3f(2,2,2);
+	virtual Vec3f emitted(const Ray& ray, const IntersectionInfo& info) const {
+		if (dot(info.normal, ray.direction()) < 0.0)
+			return emit->value(info.uv.u, info.uv.v, info.hit_point);
+		else
+			return Vec3f{0,0,0};
 	}
 
 	std::shared_ptr<Texture> emit;
