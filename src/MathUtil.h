@@ -14,29 +14,39 @@
 
 namespace traceraptor {
 
-static std::default_random_engine pseudo_random_generator;
+class Sampler {
+public:
+	Sampler(float seed = 1.234f) {
+		prng = std::mt19937(seed);
+		distribution = std::uniform_real_distribution<float>(0.0, 1.0);
+	}
 
-inline float random01() {
-	std::uniform_real_distribution<float> distribution(0.0,1.0);
-	return distribution(pseudo_random_generator);
-}
+    // generates random number [0,1)
+    float random01f() {
+    	return distribution(prng);
+    }
+
+private:
+    std::mt19937 prng;
+    std::uniform_real_distribution<float> distribution;
+};
 
 constexpr inline int pow2(int x) { return 1 << x; }
 
 class MathUtil {
 public:
-	static Vec3f random_in_unit_disk() {
+	static Vec3f random_in_unit_disk(Sampler sampler) {
 		Vec3f p;
 	    do {
-	        p = 2.0f * Vec3f{random01(), random01(), 0} - Vec3f{1,1,0};
+	        p = 2.0f * Vec3f{sampler.random01f(), sampler.random01f(), 0} - Vec3f{1,1,0};
 	    } while (dot(p,p) >= 1.0);
 	    return p;
 	}
 
-	static Vec3f random_in_unit_sphere() {
+	static Vec3f random_in_unit_sphere(Sampler sampler) {
 		Vec3f p;
 		do {
-			p = 2.0f * Vec3f{random01(), random01(), random01()} - Vec3f{1,1,1};
+			p = 2.0f * Vec3f{sampler.random01f(), sampler.random01f(), sampler.random01f()} - Vec3f{1,1,1};
 		} while(length(p) >= 1.0);
 
 		return p;

@@ -57,7 +57,7 @@ class Renderer {
 		return lerp(top_color, bottom_color, t);
 	}
 
-	Vec3f shade(const Ray& ray, const BVH &world, int current_ray_bounce, bool renderSkyBox) {
+	Vec3f shade(const Ray& ray, const BVH &world, Sampler sampler, int current_ray_bounce, bool renderSkyBox) {
 		IntersectionInfo rec;
 			if (world.getIntersection(ray, rec, false)) {
 				Ray scattered;
@@ -65,9 +65,9 @@ class Renderer {
 				Vec3f emitted = rec.material->emitted(ray, rec);
 
 				if (current_ray_bounce < max_ray_bounce &&
-						rec.material->scatter(ray, rec, attenuation, scattered)) {
+						rec.material->scatter(ray, rec, sampler, attenuation, scattered)) {
 
-					return emitted + attenuation*shade(scattered, world, current_ray_bounce+1, renderSkyBox);
+					return emitted + attenuation*shade(scattered, world, sampler, current_ray_bounce+1, renderSkyBox);
 				} else {
 					return emitted;
 				}
@@ -85,18 +85,24 @@ class Renderer {
 
 public:
 	Renderer(int width, int height, int ns, int max_ray_bounce, bool render_skybox) :
-		width(width), height(height), ns(ns), max_ray_bounce(max_ray_bounce), render_skybox(render_skybox) {}
+		width(width),
+		height(height),
+		ns(ns),
+		max_ray_bounce(max_ray_bounce),
+		render_skybox(render_skybox) { }
 
 	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera &camera, const BVH &world, Image &image) {
+		float sampler_seed = chunk->min_x + chunk->min_y;
+		Sampler sampler(sampler_seed);
 		for (int i = chunk->min_x; i < chunk->max_x; i++) {
 			for (int j = chunk->min_y; j < chunk->max_y; j++) {
 				Vec3f color{0,0,0};
 				for (int s=0; s < ns; s++) {
 					INCREMENT_PRIMARY_RAY_STATISTICS
-					float u = float(i + random01()) / float(width);
-					float v = float(j + random01()) / float(height);
-					Ray r = camera.get_ray(u, v);
-					color += shade(r, world, 0, render_skybox);
+					float u = float(i + sampler.random01f()) / float(width);
+					float v = float(j + sampler.random01f()) / float(height);
+					Ray r = camera.get_ray(u, v, sampler);
+					color += shade(r, world, sampler, 0, render_skybox);
 				}
 				color /= (float)ns;
 				color = component_clamp(color, 0.f, 1.f);

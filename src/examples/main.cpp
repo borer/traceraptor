@@ -22,18 +22,19 @@ std::vector<std::shared_ptr<Hitable>> create_random_scene() {
 					10)));
 	list[0] =  std::shared_ptr<Hitable>(new Sphere(Vec3f{0,-1000,0}, 1000, mat_ground));
 	int i = 1;
+	Sampler sampler;
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
-			float choose_mat = random01();
-			Vec3f center{a+0.9f*random01(), 0.2f, b+0.9f*random01()};
+			float choose_mat = sampler.random01f();
+			Vec3f center{a+0.9f*sampler.random01f(), 0.2f, b+0.9f*sampler.random01f()};
 			if (choose_mat < 0.8) {
-				Vec3f color = Vec3f{random01()*random01(), random01()*random01(), random01()*random01()};
+				Vec3f color = Vec3f{sampler.random01f()*sampler.random01f(), sampler.random01f()*sampler.random01f(), sampler.random01f()*sampler.random01f()};
 				std::shared_ptr<Material> diffuse(new Lambertian(std::make_shared<ConstantTexture>(color)));
 				list[i++] = std::shared_ptr<Hitable>(new Sphere(center, 0.2, diffuse));
 			}
 			else if (choose_mat < 0.95) {
-				Vec3f color{0.5f*(1 + random01()), 0.5f*(1 + random01()), 0.5f*(1 + random01())};
-				std::shared_ptr<Material> metal(new Metal(color,  0.5*random01()));
+				Vec3f color{0.5f*(1 + sampler.random01f()), 0.5f*(1 + sampler.random01f()), 0.5f*(1 + sampler.random01f())};
+				std::shared_ptr<Material> metal(new Metal(color,  0.5*sampler.random01f()));
 				list[i++] = std::shared_ptr<Hitable>(new Sphere(center, 0.2, metal));
 			}
 			else {
