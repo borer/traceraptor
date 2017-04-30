@@ -31,7 +31,7 @@ public:
 	}
 
 	Ray get_ray(float s, float t, Sampler sampler) const {
-		Vec3f rd = lens_radius*MathUtil::random_in_unit_disk(sampler);
+		Vec3f rd = lens_radius*sampler.random_in_unit_disk();
 		Vec3f offset = u * rd[0] + v * rd[1];
 		return Ray(origin + offset, lower_left_corner + s*horizontal + t*vertical - origin - offset);
 	}

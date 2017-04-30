@@ -57,31 +57,43 @@ class Renderer {
 		return lerp(top_color, bottom_color, t);
 	}
 
-	Vec3f shade(const Ray& ray, const BVH &world, Sampler sampler, int current_ray_bounce, bool renderSkyBox) {
+	Vec3f shadeNoIntersection(const Ray& ray) {
+		if (render_skybox) {
+			Vec3f top_color{1.0f, 1.0f, 1.0f};
+			Vec3f bottom_color{0.5f, 0.7f, 1.0f};
+			return skybox_shade(ray, top_color, bottom_color);
+		} else{
+			Vec3f black_color{0, 0, 0};
+			return black_color;
+		}
+	}
+
+	Vec3f shade(const Ray& ray, const BVH &world, Sampler sampler) {
 		IntersectionInfo rec;
-			if (world.getIntersection(ray, rec, false)) {
-				Ray scattered;
+		Ray rayIn = ray;
+		Vec3f shadeColor{1.0f, 1.0f, 1.0f};
+		for (int current_ray_bounce = 0;; current_ray_bounce++) {
+			if (world.getIntersection(rayIn, rec, false)) {
 				Vec3f attenuation;
-				Vec3f emitted = rec.material->emitted(ray, rec);
+				Vec3f emitted = rec.material->emitted(rayIn, rec);
+				Ray scattered;
 
 				if (current_ray_bounce < max_ray_bounce &&
-						rec.material->scatter(ray, rec, sampler, attenuation, scattered)) {
-
-					return emitted + attenuation*shade(scattered, world, sampler, current_ray_bounce+1, renderSkyBox);
+						rec.material->scatter(rayIn, rec, sampler, attenuation, scattered)) {
+					shadeColor *= emitted + attenuation;
+					rayIn = scattered;
 				} else {
-					return emitted;
+					shadeColor *= emitted;
+					break;
 				}
 			} else {
-				if (renderSkyBox) {
-					Vec3f top_color{1.0, 1.0, 1.0};
-					Vec3f bottom_color{0.5, 0.7, 1.0};
-					return skybox_shade(ray, top_color, bottom_color);
-				} else{
-					Vec3f black_color{0, 0, 0};
-					return black_color;
-				}
+				shadeColor *= shadeNoIntersection(rayIn);
+				break;
 			}
 		}
+
+		return shadeColor;
+	}
 
 public:
 	Renderer(int width, int height, int ns, int max_ray_bounce, bool render_skybox) :
@@ -102,7 +114,7 @@ public:
 					float u = float(i + sampler.random01f()) / float(width);
 					float v = float(j + sampler.random01f()) / float(height);
 					Ray r = camera.get_ray(u, v, sampler);
-					color += shade(r, world, sampler, 0, render_skybox);
+					color += shade(r, world, sampler);
 				}
 				color /= (float)ns;
 				color = component_clamp(color, 0.f, 1.f);

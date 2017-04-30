@@ -52,7 +52,7 @@ public:
 
     virtual bool scatter(const Ray &r_in, const IntersectionInfo &rec, Sampler sampler, Vec3f &attenuation, Ray& scattered) const {
     	UNUSED(r_in);
-        Vec3f target = rec.hit_point + rec.normal + MathUtil::random_in_unit_sphere(sampler);
+        Vec3f target = rec.hit_point + rec.normal + sampler.random_in_unit_sphere();
         scattered = Ray(rec.hit_point, target - rec.hit_point);
         attenuation = albedo->value(rec.uv.u, rec.uv.v, rec.hit_point);
         return true;
@@ -73,7 +73,7 @@ public:
         Vec3f ray_direction_unit = normalize(r_in.direction());
         Vec3f reflected = reflect(ray_direction_unit, rec.normal);
 
-        scattered = Ray(rec.hit_point, reflected + fuzz*MathUtil::random_in_unit_sphere(sampler));
+        scattered = Ray(rec.hit_point, reflected + fuzz*sampler.random_in_unit_sphere());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
