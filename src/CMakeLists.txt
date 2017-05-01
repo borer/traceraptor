@@ -8,6 +8,7 @@ set(sources
   Image.cpp
   BBox.cpp
   BVH.cpp
+  SceneLoader.cpp
 )
 
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
