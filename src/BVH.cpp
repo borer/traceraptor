@@ -58,8 +58,8 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
       for(unsigned int o=0; o<node.num_primitives ;++o) {
     	IntersectionInfo current;
 
-        const std::shared_ptr<Hitable> obj = build_prims[node.start+o];
-        bool hit = obj->hit(ray, default_tmin, default_tmax, current);
+        const std::shared_ptr<Primitive> obj = build_prims[node.start+o];
+        bool hit = obj->Intersect(ray, default_tmin, default_tmax, current);
 
         if (hit) {
           // If we're only looking for occlusion, then any hit is good enough
@@ -120,10 +120,15 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
 BVH::~BVH() {
 }
 
-BVH::BVH(std::vector<std::shared_ptr<Hitable>> &objects, unsigned int leafSize)
+BVH::BVH(std::vector<std::shared_ptr<Primitive>> &objects, unsigned int leafSize)
   : nNodes(0), nLeafs(0), leafSize(leafSize), build_prims(objects) {
 
 	Logger::log_debug("Started building BVH");
+    if (build_prims.size() == 0){
+      Logger::log_debug("0 objects in BVH");
+      return;
+    }
+      
     build();
     Logger::log_debug("Ended building BVH - Nodes:" + std::to_string(nNodes) + ", Leafs:" + std::to_string(nLeafs));
   }
@@ -177,7 +182,7 @@ void BVH::build()
     BBox bb((build_prims[start])->get_bbox());
     BBox bc((build_prims[start])->get_centroid());
     for(unsigned int p = start; p < end; ++p) {
-      std::shared_ptr<Hitable> build_prim = (build_prims[p]);
+      std::shared_ptr<Primitive> build_prim = (build_prims[p]);
       bb.expandToInclude(build_prim->get_bbox());
       bc.expandToInclude(build_prim->get_centroid());
     }

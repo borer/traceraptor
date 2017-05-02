@@ -10,13 +10,13 @@
 
 #include <Logger.h>
 #include <MathUtil.h>
+#include <Primitive.h>
 #include <Vec.h>
 #include <string>
 #include <thread>
 
 #include "Image.h"
 #include "Ray.h"
-#include "Hitable.h"
 #include "Sphere.h"
 #include "Camera.h"
 #include "Material.h"

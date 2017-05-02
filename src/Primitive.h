@@ -1,22 +1,22 @@
 /*
- * Hitable.h
+ * Primitive.h
  *
  *  Created on: Nov 23, 2016
  *      Author: bogdan
  */
 
-#ifndef TRACERAPTOR_HITABLE_H_
-#define TRACERAPTOR_HITABLE_H_
+#ifndef TRACERAPTOR_PRIMITIVE_H_
+#define TRACERAPTOR_PRIMITIVE_H_
 
+#include <Primitive.h>
 #include <Vec.h>
 #include "Ray.h"
-#include "Hitable.h"
 
 namespace traceraptor {
 
 class Material;
 class BBox;
-class Hitable;
+class Primitive;
 
 class UV {
 public:
@@ -38,12 +38,12 @@ public:
     bool hit_something;
 };
 
-class Hitable{
+class Primitive {
 public:
-	Hitable() {}
-    virtual ~Hitable() {}
+	Primitive() {}
+    virtual ~Primitive() {}
 
-    virtual bool hit(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const = 0;
+    virtual bool Intersect(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const = 0;
     virtual BBox get_bbox() const = 0;
     virtual Vec3f get_centroid() const = 0;
     virtual UV get_uv(const Vec3f& point) const = 0;

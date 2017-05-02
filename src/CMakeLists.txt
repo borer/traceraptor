@@ -8,6 +8,7 @@ set(sources
   Image.cpp
   BBox.cpp
   BVH.cpp
+  Triangle.cpp
   SceneLoader.cpp
 )
 
