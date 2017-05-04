@@ -14,13 +14,22 @@
 
 namespace traceraptor {
 
-std::vector<std::shared_ptr<Primitive>> CreateTriangleMesh(
-		int nTriangles, const int *vertexIndices, int nVertices, const Vec3f *p,
-		const Vec3f *n, const Vec2f *uv, std::shared_ptr<Material> obj_material);
+std::vector<std::shared_ptr<Primitive>> CreateTriangleMesh(int nTriangles,
+                                                           const std::vector<int> vertexIndices,
+                                                           int nVertices,
+                                                           const std::vector<Vec3f> p,
+                                                           const std::vector<Vec3f> n,
+                                                           const std::vector<Vec2f> uv,
+                                                           std::shared_ptr<Material> obj_material);
 
 struct TriangleMesh {
-	TriangleMesh(int nTriangles, const int *vertexIndices, int nVertices, const Vec3f *V,
-			const Vec3f *N, const Vec2f *uv, std::shared_ptr<Material> obj_material);
+	TriangleMesh(int nTriangles,
+                 const std::vector<int> vertexIndices,
+                 int nVertices,
+                 const std::vector<Vec3f> V,
+                 const std::vector<Vec3f> N,
+                 const std::vector<Vec2f> uv,
+                 std::shared_ptr<Material> obj_material);
 
 	const int nTriangles, nVertices;
 	std::vector<int> vertexIndices;

@@ -174,7 +174,7 @@ void manual_triangle(std::string filename) {
 	const int MAX_RAY_BOUNCE = 8;
 
 	Vec3f lookfrom{0,1,4.5f};
-	Vec3f lookat{0,1,0};
+	Vec3f lookat{0,0,0};
 	float dist_to_focus = 10.0;
 	float aperture = 0.0;
 	float vfov = 35;
@@ -182,7 +182,8 @@ void manual_triangle(std::string filename) {
 	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, vfov, float(width)/float(height), aperture, dist_to_focus);
 
 	SceneLoader sceneLoader;
-	vector<shared_ptr<Primitive>> scene = sceneLoader.Load("cornell_box.obj");
+//	vector<shared_ptr<Primitive>> scene = sceneLoader.Load("cornell_box.obj");
+    vector<shared_ptr<Primitive>> scene = sceneLoader.Load("simple-box.obj");
 
     BVH world(scene);
 

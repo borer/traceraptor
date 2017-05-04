@@ -5,11 +5,16 @@
 
 namespace traceraptor {
 
-TriangleMesh::TriangleMesh(int nTriangles, const int *vertexIndices, int nVertices, const Vec3f *V,
-		const Vec3f *N, const Vec2f *UV, std::shared_ptr<Material> obj_material)
+TriangleMesh::TriangleMesh(int nTriangles,
+                           const std::vector<int> vertexIndices,
+                           int nVertices,
+                           const std::vector<Vec3f> V,
+                           const std::vector<Vec3f> N,
+                           const std::vector<Vec2f> UV,
+                           std::shared_ptr<Material> obj_material)
 		: nTriangles(nTriangles),
 		  nVertices(nVertices),
-		  vertexIndices(vertexIndices, vertexIndices + 3 * nTriangles),
+		  vertexIndices(vertexIndices),
 		  material(obj_material) {
 
 	//TODO: Transform mesh vertices to world space
@@ -17,14 +22,19 @@ TriangleMesh::TriangleMesh(int nTriangles, const int *vertexIndices, int nVertic
 	for (int i = 0; i < nVertices; ++i) v[i] = V[i];
 
 	// Copy _UV_, _N_, and _S_ vertex data, if present
-	if (UV) {
+	if (!UV.empty()) {
 		uv.reset(new Vec2f[nVertices]);
-		memcpy(uv.get(), UV, nVertices * sizeof(Vec2f));
-	}
-	if (N) {
+        for (int i = 0; i < nVertices; ++i) uv[i] = UV[i];
+    } else {
+        uv.reset();
+    }
+              
+	if (!N.empty()) {
 		n.reset(new Vec3f[nVertices]);
 		for (int i = 0; i < nVertices; ++i) n[i] = N[i];
-	}
+    } else {
+        n.reset();
+    }
 }
 
 Triangle::Triangle(std::shared_ptr<TriangleMesh> mesh, int triNumber) {
@@ -103,12 +113,22 @@ UV Triangle::get_uv(const Vec3f& point) const {
 	return UV(0,0);
 }
 
-std::vector<std::shared_ptr<Primitive>> CreateTriangleMesh(
-		int nTriangles, const int *vertexIndices, int nVertices, const Vec3f *p,
-		const Vec3f *n, const Vec2f *uv, std::shared_ptr<Material> obj_material) {
+std::vector<std::shared_ptr<Primitive>> CreateTriangleMesh(int nTriangles,
+                                                           const std::vector<int> vertexIndices,
+                                                           int nVertices,
+                                                           const std::vector<Vec3f> p,
+                                                           const std::vector<Vec3f> n,
+                                                           const std::vector<Vec2f> uv,
+                                                           std::shared_ptr<Material> obj_material) {
 
-    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(nTriangles, vertexIndices,
-    		nVertices, p, n, uv, obj_material);
+    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(nTriangles,
+                                                                        vertexIndices,
+                                                                        nVertices,
+                                                                        p,
+                                                                        n,
+                                                                        uv,
+                                                                        obj_material);
+    
     std::vector<std::shared_ptr<Primitive>> tris;
     tris.reserve(nTriangles);
     for (int i = 0; i < nTriangles; ++i)
