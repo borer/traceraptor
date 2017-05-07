@@ -10,7 +10,7 @@
 
 #include <Primitive.h>
 #include <Vec.h>
-#include "Ray.h"
+#include <Ray.h>
 
 namespace traceraptor {
 

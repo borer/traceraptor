@@ -8,20 +8,20 @@
 #ifndef TRACERAPTOR_RENDERER_H_
 #define TRACERAPTOR_RENDERER_H_
 
+#include <string>
+#include <thread>
+
 #include <Logger.h>
 #include <MathUtil.h>
 #include <Primitive.h>
 #include <Vec.h>
-#include <string>
-#include <thread>
-
-#include "Image.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "Camera.h"
-#include "Material.h"
-#include "BVH.h"
-#include "RayTracingStatistics.h"
+#include <Image.h>
+#include <Ray.h>
+#include <Camera.h>
+#include <Material.h>
+#include <BVH.h>
+#include <RayTracingStatistics.h>
+#include <integrators/Integrator.h>
 
 namespace traceraptor {
 
@@ -36,74 +36,14 @@ public:
 
 class Renderer {
 
-	std::vector<std::shared_ptr<RenderChunk>> calculate_render_chuncks(int size = 16)
-	{
-		std::vector<std::shared_ptr<RenderChunk>> render_chunks;
-
-		for(int i = 0; i < width; i+=size) {
-			for(int j = 0; j < height; j+=size) {
-				int max_width = i+size > width ? width : i+size;
-				int max_height = j+size > height ? height : j+size;
-				render_chunks.push_back(std::make_shared<RenderChunk>(i,j,max_width,max_height));
-			}
-		}
-
-		return render_chunks;
-	}
-
-	Vec3f skybox_shade(const Ray& ray, Vec3f &top_color, Vec3f &bottom_color) {
-		Vec3f unit_direction = normalize(ray.direction());
-		float t = 0.5f*(unit_direction[1] + 1.0f);
-		return lerp(top_color, bottom_color, t);
-	}
-
-	Vec3f shadeNoIntersection(const Ray& ray) {
-		if (render_skybox) {
-			Vec3f top_color{1.0f, 1.0f, 1.0f};
-			Vec3f bottom_color{0.5f, 0.7f, 1.0f};
-			return skybox_shade(ray, top_color, bottom_color);
-		} else{
-			Vec3f black_color{0, 0, 0};
-			return black_color;
-		}
-	}
-
-	Vec3f shade(const Ray& ray, const BVH &world, Sampler sampler) {
-		IntersectionInfo rec;
-		Ray rayIn = ray;
-		Vec3f shadeColor{1.0f, 1.0f, 1.0f};
-		for (int current_ray_bounce = 0;; current_ray_bounce++) {
-			if (world.getIntersection(rayIn, rec, false)) {
-				Vec3f attenuation;
-				Vec3f emitted = rec.material->emitted(rayIn, rec);
-				Ray scattered;
-
-				if (current_ray_bounce < max_ray_bounce &&
-						rec.material->scatter(rayIn, rec, sampler, attenuation, scattered)) {
-					shadeColor *= emitted + attenuation;
-					rayIn = scattered;
-				} else {
-					shadeColor *= emitted;
-					break;
-				}
-			} else {
-				shadeColor *= shadeNoIntersection(rayIn);
-				break;
-			}
-		}
-
-		return shadeColor;
-	}
-
 public:
-	Renderer(int width, int height, int ns, int max_ray_bounce, bool render_skybox) :
+	Renderer(int width, int height, int ns, const Integrator& integrator) :
 		width(width),
 		height(height),
 		ns(ns),
-		max_ray_bounce(max_ray_bounce),
-		render_skybox(render_skybox) { }
+		integrator(integrator) { }
 
-	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera &camera, const BVH &world, Image &image) {
+	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera& camera, const BVH& world, Image& image) {
 		float sampler_seed = chunk->min_x + chunk->min_y;
 		Sampler sampler(sampler_seed);
 		for (int i = chunk->min_x; i < chunk->max_x; i++) {
@@ -114,7 +54,7 @@ public:
 					float u = float(i + sampler.random01f()) / float(width);
 					float v = float(j + sampler.random01f()) / float(height);
 					Ray r = camera.get_ray(u, v, sampler);
-					color += shade(r, world, sampler);
+					color += integrator.Li(r, world, sampler);
 				}
 				color /= (float)ns;
 				color = component_clamp(color, 0.f, 1.f);
@@ -124,7 +64,7 @@ public:
 		}
 	}
 
-	void render_worker(const std::vector<std::shared_ptr<RenderChunk>> &chunks, const Camera &camera, const BVH &world, Image &image) {
+	void render_worker(const std::vector<std::shared_ptr<RenderChunk>>& chunks, const Camera& camera, const BVH& world, Image& image) {
 		int chunks_size = chunks.size();
 		for(int i = 0; i < chunks_size; i++) {
 			if (!chunks[i]->is_processed.test_and_set()) {
@@ -134,7 +74,7 @@ public:
 		}
 	}
 
-	void render_scene(const Camera& camera, const BVH &world, const std::string &filename, const int number_threads = 1) {
+	void render_scene(const Camera& camera, const BVH& world, const std::string& filename, const int number_threads = 1) {
 		Image image(width, height);
 
 		Logger::log_debug("Beginning ray tracing");
@@ -164,11 +104,27 @@ public:
 		}
 	}
 
+private:
+
+	std::vector<std::shared_ptr<RenderChunk>> calculate_render_chuncks(int size = 16)
+		{
+			std::vector<std::shared_ptr<RenderChunk>> render_chunks;
+
+			for(int i = 0; i < width; i+=size) {
+				for(int j = 0; j < height; j+=size) {
+					int max_width = i+size > width ? width : i+size;
+					int max_height = j+size > height ? height : j+size;
+					render_chunks.push_back(std::make_shared<RenderChunk>(i,j,max_width,max_height));
+				}
+			}
+
+			return render_chunks;
+		}
+
 	int width;
 	int height;
 	int ns;
-	int max_ray_bounce;
-	bool render_skybox;
+	const Integrator& integrator;
 };
 
 } /* namespace traceraptor */

@@ -6,11 +6,11 @@
  */
 
 #include <SceneLoader.h>
-#include "Logger.h"
-#include "Vec.h"
+#include <Logger.h>
+#include <Vec.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-#include "tiny_obj_loader.h"
+#include <tiny_obj_loader.h>
 
 namespace traceraptor {
 

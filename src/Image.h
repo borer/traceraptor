@@ -8,9 +8,10 @@
 #ifndef SRC_IMAGE_H_
 #define SRC_IMAGE_H_
 
-#include <Vec.h>
 #include <string>
-#include "Logger.h"
+
+#include <Vec.h>
+#include <Logger.h>
 
 namespace traceraptor {
 

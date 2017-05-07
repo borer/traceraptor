@@ -10,8 +10,8 @@
 
 #include <MathUtil.h>
 #include <Vec.h>
-#include "Ray.h"
-#include "Texture.h"
+#include <Ray.h>
+#include <Texture.h>
 
 #define UNUSED(expr) (void)(expr)
 

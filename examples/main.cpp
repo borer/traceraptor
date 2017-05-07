@@ -3,13 +3,14 @@
 #include <string>
 #include <chrono>
 
-#include "Logger.h"
-#include "Sphere.h"
-#include "Triangle.h"
-#include "Renderer.h"
-#include "BVH.h"
-#include "Texture.h"
-#include "SceneLoader.h"
+#include <Logger.h>
+#include <Sphere.h>
+#include <Triangle.h>
+#include <Renderer.h>
+#include <BVH.h>
+#include <Texture.h>
+#include <SceneLoader.h>
+#include <integrators/Integrator.h>
 
 using namespace traceraptor;
 
@@ -70,7 +71,8 @@ void random_setup(std::string filename){
 
 	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, 20, float(width)/float(height), aperture, dist_to_focus);
 
-	Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
+	SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
+	Renderer renderer(width, height, ns, simpleIntegrator);
 	std::vector<std::shared_ptr<Primitive>> world_objects = create_random_scene();
 	BVH world(world_objects);
 
@@ -111,8 +113,8 @@ void manual_setup(std::string filename) {
 			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1})))));
 
     BVH world(list);
-
-    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
+    SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
+    Renderer renderer(width, height, ns, simpleIntegrator);
     renderer.render_scene(camera, world, filename, 4);
 }
 
@@ -149,22 +151,9 @@ void manual_setup_light(std::string filename) {
     		0.5,
 			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1})))));
     BVH world(list);
-
-    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, false);
+    SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
+    Renderer renderer(width, height, ns, simpleIntegrator);
     renderer.render_scene(camera, world, filename, 4);
-}
-
-std::vector<std::shared_ptr<Primitive>> make_box(Vec3f min, Vec3f max, std::shared_ptr<Material> material) {
-	std::vector<std::shared_ptr<Primitive>> box(4);
-	int i= 0;
-	//Front
-//	box[i++] = std::shared_ptr<Hitable>(new Triangle(min,Vec3f{max[0],min[1],min[2]},Vec3f{max[0],max[1],min[2]}, material));
-//	box[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{max[0],max[1],min[2]},Vec3f{min[0],max[1],min[2]},min, material));
-//	//Right
-//	box[i++] = std::shared_ptr<Hitable>(new Triangle(min,Vec3f{max[0],min[1],min[2]},Vec3f{max[0],max[1],min[2]}, material));
-//	box[i++] = std::shared_ptr<Hitable>(new Triangle(Vec3f{max[0],max[1],min[2]},Vec3f{min[0],max[1],min[2]},min, material));
-
-	return box;
 }
 
 void manual_triangle(std::string filename) {
@@ -186,8 +175,8 @@ void manual_triangle(std::string filename) {
     vector<shared_ptr<Primitive>> scene = sceneLoader.Load("simple-box.obj");
 
     BVH world(scene);
-
-    Renderer renderer(width, height, ns, MAX_RAY_BOUNCE, true);
+    SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
+    Renderer renderer(width, height, ns, simpleIntegrator);
     renderer.render_scene(camera, world, filename, 4);
 }
 
