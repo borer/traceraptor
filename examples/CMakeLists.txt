@@ -7,9 +7,9 @@ set(sources
 # Build executable
 add_executable(${executable_name} ${sources})
 
-target_link_libraries(${executable_name} ${target})
+target_link_libraries(${executable_name} ${traceraptorLib})
 
-message("genarating ${binary_name} with library ${target}")
+message("genarating ${binary_name} with library ${traceraptorLib}")
 
 target_include_directories(${executable_name}
     PRIVATE

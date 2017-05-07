@@ -17,9 +17,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 include(cmake/CompileOptions.cmake)
 
 set(CUSTOM_INCLUDE_DIRECTORIES)
+set(traceraptorLib traceraptor)
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/src")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(examples)
+

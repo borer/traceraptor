@@ -1,9 +1,3 @@
-set(target traceraptor)
-
-list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
-
-add_subdirectory(examples)
-
 set(sources
   Image.cpp
   BBox.cpp
@@ -12,29 +6,27 @@ set(sources
   SceneLoader.cpp
 )
 
-list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}")
-
 # Build library
-message("generating library ${target}")
-add_library(${target} STATIC ${sources}
+message("generating library ${traceraptorLib}")
+add_library(${traceraptorLib} STATIC ${sources}
 )
 
-target_include_directories(${target}
+target_include_directories(${traceraptorLib}
     PRIVATE
     ${CUSTOM_INCLUDE_DIRECTORIES}
 )
 
-set_target_properties(${target}
+set_target_properties(${traceraptorLib}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}
 )
 
-target_compile_definitions(${target}
+target_compile_definitions(${traceraptorLib}
     PRIVATE
     ${DEFAULT_COMPILE_DEFINITIONS}
 )
 
-target_compile_options(${target}
+target_compile_options(${traceraptorLib}
     PRIVATE
     ${DEFAULT_COMPILE_OPTIONS}
 )
