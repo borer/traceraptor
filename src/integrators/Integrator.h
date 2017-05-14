@@ -15,6 +15,7 @@
 #include <MathUtil.h>
 #include <Primitive.h>
 #include <Vec.h>
+#include <Color.h>
 #include <Ray.h>
 #include <Camera.h>
 #include <Material.h>
@@ -25,7 +26,7 @@ namespace traceraptor {
 
 class Integrator {
 public:
-	virtual Vec3f Li(const Ray& ray, const BVH &world, Sampler& sampler) const = 0;
+	virtual RGBColor Li(const Ray& ray, const BVH &world, Sampler& sampler) const = 0;
 	virtual ~Integrator();
 };
 
@@ -33,11 +34,11 @@ class SimpleIntegrator : public Integrator {
 public:
 	SimpleIntegrator(bool render_skybox,
                      int max_ray_bounces) : max_ray_bounce(max_ray_bounces), render_skybox(render_skybox) { }
-	Vec3f Li(const Ray& ray, const BVH& world, Sampler& sampler) const;
+	RGBColor Li(const Ray& ray, const BVH& world, Sampler& sampler) const;
 
 private:
-	Vec3f skybox_shade(const Ray& ray, Vec3f& top_color, Vec3f& bottom_color) const;
-	Vec3f shadeNoIntersection(const Ray& ray) const;
+	RGBColor skybox_shade(const Ray& ray, RGBColor& top_color, RGBColor& bottom_color) const;
+	RGBColor shadeNoIntersection(const Ray& ray) const;
 
 	int max_ray_bounce;
 	bool render_skybox;

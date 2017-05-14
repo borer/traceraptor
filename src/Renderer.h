@@ -48,7 +48,7 @@ public:
 		Sampler sampler(sampler_seed);
 		for (int i = chunk->min_x; i < chunk->max_x; i++) {
 			for (int j = chunk->min_y; j < chunk->max_y; j++) {
-				Vec3f color{0,0,0};
+				RGBColor color{0,0,0};
 				for (int s=0; s < ns; s++) {
 					INCREMENT_PRIMARY_RAY_STATISTICS
 					float u = float(i + sampler.random01f()) / float(width);
@@ -57,9 +57,8 @@ public:
 					color += integrator.Li(r, world, sampler);
 				}
 				color /= (float)ns;
-				color = component_clamp(color, 0.f, 1.f);
-				color = Vec3f{std::sqrt(color[0]), std::sqrt(color[1]), std::sqrt(color[2])};
-				image.setPixel(i, j, color);
+                RGBColor compressedColor = color.CompressGamma();
+				image.setPixel(i, j, compressedColor);
 			}
 		}
 	}

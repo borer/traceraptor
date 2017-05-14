@@ -11,6 +11,7 @@
 #include <string>
 
 #include <Vec.h>
+#include <Color.h>
 #include <Logger.h>
 
 namespace traceraptor {
@@ -28,7 +29,7 @@ public:
 	Image(int width, int height);
 	virtual ~Image();
 
-	void setPixel(int x, int y, const Vec3f &color);
+	void setPixel(int x, int y, const RGBColor &color);
 	void setPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 	int writePNGfile(std::string filename);
 };
