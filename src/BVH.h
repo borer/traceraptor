@@ -10,9 +10,9 @@
 
 #include <Primitive.h>
 #include <vector>
-#include "BBox.h"
-#include "Ray.h"
-#include "Logger.h"
+#include <BBox.h>
+#include <Ray.h>
+#include <Logger.h>
 
 namespace traceraptor {
 
@@ -21,7 +21,7 @@ struct BVHFlatNode {
   unsigned int start, num_primitives, rightOffset;
 };
 
-class BVH {
+class BVH : public Aggregate {
 	static const float default_tmin;
 	static const float default_tmax;
 
@@ -35,8 +35,9 @@ class BVH {
 public:
 	BVH(std::vector<std::shared_ptr<Primitive>> &objects, unsigned int leafSize = 4);
 	bool getIntersection(const Ray& ray, IntersectionInfo &intersection, bool occlusion) const;
+	virtual bool Intersect(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const;
 
-	~BVH();
+	virtual ~BVH();
 };
 
 } /* namespace traceraptor */

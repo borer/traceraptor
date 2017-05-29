@@ -12,6 +12,8 @@
 #include <Vec.h>
 #include <Ray.h>
 #include <Texture.h>
+#include <Shape.h>
+#include <Intersection.h>
 
 #define UNUSED(expr) (void)(expr)
 

@@ -8,19 +8,18 @@
 #ifndef TRACERAPTOR_TRIANGLE_H_
 #define TRACERAPTOR_TRIANGLE_H_
 
-#include <Primitive.h>
-#include "Material.h"
-#include "BBox.h"
+#include <Shape.h>
+#include <Material.h>
+#include <BBox.h>
 
 namespace traceraptor {
 
-std::vector<std::shared_ptr<Primitive>> CreateTriangleMesh(int nTriangles,
+std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(int nTriangles,
                                                            const std::vector<int> vertexIndices,
                                                            int nVertices,
                                                            const std::vector<Vec3f> p,
                                                            const std::vector<Vec3f> n,
-                                                           const std::vector<Vec2f> uv,
-                                                           std::shared_ptr<Material> obj_material);
+                                                           const std::vector<Vec2f> uv);
 
 struct TriangleMesh {
 	TriangleMesh(int nTriangles,
@@ -28,19 +27,16 @@ struct TriangleMesh {
                  int nVertices,
                  const std::vector<Vec3f> V,
                  const std::vector<Vec3f> N,
-                 const std::vector<Vec2f> uv,
-                 std::shared_ptr<Material> obj_material);
+                 const std::vector<Vec2f> uv);
 
 	const int nTriangles, nVertices;
 	std::vector<int> vertexIndices;
 	std::unique_ptr<Vec3f[]> v; //vertices
 	std::unique_ptr<Vec3f[]> n; //normals
 	std::unique_ptr<Vec2f[]> uv;
-
-	std::shared_ptr<Material> material;
 };
 
-class Triangle: public Primitive {
+class Triangle: public Shape {
 public:
 	Triangle(std::shared_ptr<TriangleMesh> mesh, int triNumber);
 

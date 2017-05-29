@@ -8,6 +8,8 @@
 #include <SceneLoader.h>
 #include <Logger.h>
 #include <Vec.h>
+#include <BVH.h>
+#include <shapes/Triangle.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 #include <tiny_obj_loader.h>
@@ -19,7 +21,7 @@ using namespace std;
 SceneLoader::SceneLoader() { }
 
 vector<shared_ptr<Primitive>> SceneLoader::Load(string const& inputFileName) {
-	vector<shared_ptr<Primitive>> loadedShapes;
+	std::vector<shared_ptr<Primitive>> loadedShapes;
 
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -44,7 +46,6 @@ vector<shared_ptr<Primitive>> SceneLoader::Load(string const& inputFileName) {
 		assert((currentShape.mesh.indices.size() % 3) == 0);
 
 		int numTriangles = currentShape.mesh.num_face_vertices.size();
-		std::shared_ptr<Material> redMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.65f, 0.05f, 0.05f}));
 
         int numVertices = currentShape.mesh.indices.size();
 		std::vector<int> vertexIndices(numVertices);
@@ -81,11 +82,22 @@ vector<shared_ptr<Primitive>> SceneLoader::Load(string const& inputFileName) {
             index++;
 		}
 
-		vector<shared_ptr<Primitive>> shape = CreateTriangleMesh(numTriangles, vertexIndices, numVertices, vertices, normals, uvs, redMaterial);
+		std::vector<shared_ptr<Shape>> triangleMesh = CreateTriangleMesh(numTriangles,
+				vertexIndices,
+				numVertices,
+				vertices,
+				normals,
+				uvs);
 
-		for(size_t i=0; i < shape.size(); i++) {
-			loadedShapes.push_back(shape[i]);
+		std::shared_ptr<Material> redMaterial = std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(Vec3f{0.65f, 0.05f, 0.05f}));
+		std::vector<shared_ptr<Primitive>> trianglePrimitives;
+		for(size_t i=0; i < triangleMesh.size(); i++) {
+			std::shared_ptr<GeometricPrimitive> trianglePrimitive = std::make_shared<GeometricPrimitive>(triangleMesh[i], redMaterial);
+            trianglePrimitives.push_back(trianglePrimitive);
 		}
+
+		std::shared_ptr<BVH> aggregate = std::make_shared<BVH>(trianglePrimitives);
+        loadedShapes.push_back(std::static_pointer_cast<Primitive>(aggregate));
 
 		printf("shape[%ld].name = %s\n", i, shapes[i].name.c_str());
 //		printf("Size of shape[%ld].indices: %ld\n", i, shapes[i].mesh.indices.size());
@@ -100,7 +112,7 @@ vector<shared_ptr<Primitive>> SceneLoader::Load(string const& inputFileName) {
 }
 
 SceneLoader::~SceneLoader() {
-	// TODO Auto-generated destructor stub
+
 }
 
 } /* namespace traceraptor */

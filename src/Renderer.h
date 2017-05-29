@@ -13,7 +13,6 @@
 
 #include <Logger.h>
 #include <MathUtil.h>
-#include <Primitive.h>
 #include <Vec.h>
 #include <Image.h>
 #include <Ray.h>
@@ -22,6 +21,7 @@
 #include <BVH.h>
 #include <RayTracingStatistics.h>
 #include <integrators/Integrator.h>
+#include <Shape.h>
 
 namespace traceraptor {
 

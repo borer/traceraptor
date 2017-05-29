@@ -21,6 +21,10 @@ struct BVHTraversal {
   BVHTraversal(int _i, float _mint) : i(_i), min_t(_mint) { }
 };
 
+bool BVH::Intersect(const Ray &ray, float t_min, float t_max, IntersectionInfo &intersection) const {
+	return getIntersection(ray, intersection, false);
+}
+
 //! - Compute the nearest intersection of all objects within the tree.
 //! - Return true if hit was found, false otherwise.
 //! - In the case where we want to find out of there is _ANY_ intersection at all,
@@ -179,12 +183,12 @@ void BVH::build()
     node.rightOffset = Untouched;
 
     // Calculate the bounding box for this node
-    BBox bb((build_prims[start])->get_bbox());
-    BBox bc((build_prims[start])->get_centroid());
+    BBox bb((build_prims[start])->GetBounds());
+    BBox bc((build_prims[start])->GetCentroid());
     for(unsigned int p = start; p < end; ++p) {
       std::shared_ptr<Primitive> build_prim = (build_prims[p]);
-      bb.expandToInclude(build_prim->get_bbox());
-      bc.expandToInclude(build_prim->get_centroid());
+      bb.expandToInclude(build_prim->GetBounds());
+      bc.expandToInclude(build_prim->GetCentroid());
     }
     node.bbox = bb;
 
@@ -222,7 +226,7 @@ void BVH::build()
     // Partition the list of objects on this split
     unsigned int mid = start;
     for(unsigned int i=start; i < end ;++i) {
-      Vec3f centroid = (build_prims[i])->get_centroid();
+      Vec3f centroid = (build_prims[i])->GetCentroid();
       if(centroid[split_dim] < split_coord ) {
         std::swap( (build_prims[i]), (build_prims[mid]) );
         ++mid;

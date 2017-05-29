@@ -1,16 +1,17 @@
-#include <Primitive.h>
 #include <Vec.h>
 #include <string>
 #include <chrono>
 
 #include <Logger.h>
-#include <Sphere.h>
-#include <Triangle.h>
+#include <shapes/Sphere.h>
+#include <shapes/Triangle.h>
 #include <Renderer.h>
 #include <BVH.h>
 #include <Texture.h>
 #include <SceneLoader.h>
 #include <integrators/Integrator.h>
+#include <Shape.h>
+#include <Primitive.h>
 
 using namespace traceraptor;
 
@@ -22,7 +23,7 @@ std::vector<std::shared_ptr<Primitive>> create_random_scene() {
 					std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5}),
 					std::make_shared<ConstantTexture>(Vec3f{1,1,1}),
 					10)));
-	list[0] =  std::shared_ptr<Primitive>(new Sphere(Vec3f{0,-1000,0}, 1000, mat_ground));
+	list[0] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0,-1000,0}, 1000)), mat_ground);
 	int i = 1;
 	Sampler sampler;
 	for (int a = -11; a < 11; a++) {
@@ -32,28 +33,32 @@ std::vector<std::shared_ptr<Primitive>> create_random_scene() {
 			if (choose_mat < 0.8) {
 				Vec3f color = Vec3f{sampler.random01f()*sampler.random01f(), sampler.random01f()*sampler.random01f(), sampler.random01f()*sampler.random01f()};
 				std::shared_ptr<Material> diffuse(new Lambertian(std::make_shared<ConstantTexture>(color)));
-				list[i++] = std::shared_ptr<Primitive>(new Sphere(center, 0.2, diffuse));
+				list[i++] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(center, 0.2)), diffuse);
 			}
 			else if (choose_mat < 0.95) {
 				Vec3f color{0.5f*(1 + sampler.random01f()), 0.5f*(1 + sampler.random01f()), 0.5f*(1 + sampler.random01f())};
 				std::shared_ptr<Material> metal(new Metal(color,  0.5*sampler.random01f()));
-				list[i++] = std::shared_ptr<Primitive>(new Sphere(center, 0.2, metal));
+				list[i++] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(center, 0.2)), metal);
 			}
 			else {
 				std::shared_ptr<Material> glass(new Dielectric(1.5));
-				list[i++] = std::shared_ptr<Primitive>(new Sphere(center, 0.2, glass));
+				list[i++] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(center, 0.2)), glass);
 			}
 		}
 	}
 
 	std::shared_ptr<Material> glass(new Dielectric(1.5));
-	list[i++] = std::shared_ptr<Primitive>(new Sphere(Vec3f{0, 1, 0}, 1.0, glass));
+	list[i++] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(
+			new Sphere(Vec3f{0, 1, 0}, 1.0)), glass);
 	std::shared_ptr<Material> glass2(new Dielectric(1.5));
-	list[i++] = std::shared_ptr<Primitive>(new Sphere(Vec3f{0, 1, 0}, -0.95, glass2));
+	list[i++] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(
+			new Sphere(Vec3f{0, 1, 0}, -0.95)), glass2);
 	std::shared_ptr<Material> diffuse(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1})));
-	list[i++] = std::shared_ptr<Primitive>(new Sphere(Vec3f{-4, 1, 0}, 1.0, diffuse));
+	list[i++] = std::make_shared<GeometricPrimitive>(
+			std::shared_ptr<Shape>(new Sphere(Vec3f{-4, 1, 0}, 1.0)), diffuse);
 	std::shared_ptr<Material> metal(new Metal(Vec3f{0.7, 0.6, 0.5}, 0.0));
-	list[i++] = std::shared_ptr<Primitive>(new Sphere(Vec3f{4, 1, 0}, 1.0, metal));
+	list[i++] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(
+			new Sphere(Vec3f{4, 1, 0}, 1.0)), metal);
 
 	return list;
 }
@@ -93,24 +98,18 @@ void manual_setup(std::string filename) {
 	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, 20, float(width)/float(height), aperture, dist_to_focus);
 
 	std::vector<std::shared_ptr<Primitive>> list(6);
-	list[0] = std::shared_ptr<Primitive>(new Sphere(Vec3f{0.f,0.f,0.f},
-			0.5,
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.8f, 0.3f, 0.3f})))));
-	list[1] = std::shared_ptr<Primitive>(new Sphere(Vec3f{0.f,-1000.5f,0.f},
-			1000,
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
-	list[2] = std::shared_ptr<Primitive>(new Sphere(Vec3f{1.f,0.f,0.f},
-			0.5,
-			std::shared_ptr<Material>(new Metal(Vec3f{0.7f, 0.6f, 0.5f}, 0.2))));
-	list[3] = std::shared_ptr<Primitive>(new Sphere(Vec3f{-1.f,0.f,0.f},
-			0.5,
-			std::shared_ptr<Material>(new Dielectric(1.2))));
-	list[4] = std::shared_ptr<Primitive>(new Sphere(Vec3f{-1,0,0},
-			-0.45,
-			std::shared_ptr<Material>(new Dielectric(1.2))));
-	list[5] = std::shared_ptr<Primitive>(new Sphere(Vec3f{1,0,-1},
-			0.5,
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1})))));
+	list[0] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,0.f,0.f}, 0.5)),
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.8f, 0.3f, 0.3f}))));
+	list[1] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,-1000.5f,0.f}, 1000)),
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5}))));
+	list[2] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1.f,0.f,0.f}, 0.5)),
+			std::shared_ptr<Material>(new Metal(Vec3f{0.7f, 0.6f, 0.5f}, 0.2)));
+	list[3] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1.f,0.f,0.f}, 0.5)),
+			std::shared_ptr<Material>(new Dielectric(1.2)));
+	list[4] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1,0,0}, -0.45)),
+			std::shared_ptr<Material>(new Dielectric(1.2)));
+	list[5] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1,0,-1}, 0.5)),
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1}))));
 
     BVH world(list);
     SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
@@ -132,24 +131,18 @@ void manual_setup_light(std::string filename) {
 	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, 20, float(width)/float(height), aperture, dist_to_focus);
 
 	std::vector<std::shared_ptr<Primitive>> list(6);
-    list[0] = std::shared_ptr<Primitive>(new Sphere(Vec3f{0,1,0},
-    		0.5,
-			std::shared_ptr<Material>(new Emissive(std::make_shared<ConstantTexture>(Vec3f{0.5, 1, 1})))));
-    list[1] = std::shared_ptr<Primitive>(new Sphere(Vec3f{0,-1000.5,0},
-       		1000,
-   			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5})))));
-    list[2] = std::shared_ptr<Primitive>(new Sphere(Vec3f{1,0,0},
-    		0.5,
-			std::shared_ptr<Material>(new Metal(Vec3f{0.7, 0.6, 0.5}, 0.2))));
-    list[3] = std::shared_ptr<Primitive>(new Sphere(Vec3f{-1,0,0},
-    		0.5,
-			std::shared_ptr<Material>(new Dielectric(1.2))));
-    list[4] = std::shared_ptr<Primitive>(new Sphere(Vec3f{-1,0,0},
-    		-0.48,
-			std::shared_ptr<Material>(new Dielectric(1.2))));
-    list[5] = std::shared_ptr<Primitive>(new Sphere(Vec3f{1,0,-1},
-    		0.5,
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1})))));
+    list[0] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0,1,0}, 0.5)),
+			std::shared_ptr<Material>(new Emissive(std::make_shared<ConstantTexture>(Vec3f{0.5, 1, 1}))));
+    list[1] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0,-1000.5,0}, 1000)),
+   			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5}))));
+    list[2] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1,0,0}, 0.5)),
+			std::shared_ptr<Material>(new Metal(Vec3f{0.7, 0.6, 0.5}, 0.2)));
+    list[3] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1,0,0}, 0.5)),
+			std::shared_ptr<Material>(new Dielectric(1.2)));
+    list[4] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1,0,0}, -0.48)),
+			std::shared_ptr<Material>(new Dielectric(1.2)));
+    list[5] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1,0,-1},	0.5)),
+			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1}))));
     BVH world(list);
     SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
     Renderer renderer(width, height, ns, simpleIntegrator);

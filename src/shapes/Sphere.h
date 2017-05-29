@@ -8,27 +8,26 @@
 #ifndef TRACERAPTOR_SPHERE_H_
 #define TRACERAPTOR_SPHERE_H_
 
-#include <Primitive.h>
-#include "Material.h"
-#include "BBox.h"
-#include "RayTracingStatistics.h"
+#include <Shape.h>
+#include <Material.h>
+#include <BBox.h>
+#include <RayTracingStatistics.h>
 
 namespace traceraptor {
 
-class Sphere: public Primitive {
+class Sphere: public Shape {
 public:
-	Sphere(Vec3f center, float radius, std::shared_ptr<Material> obj_material) : center(center), radius(radius), material(obj_material) {};
-	virtual bool Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const;
+	Sphere(Vec3f center, float radius) : center(center), radius(radius) {};
+	virtual bool Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &intersectionInfo) const;
 	virtual BBox get_bbox() const;
 	virtual Vec3f get_centroid() const;
 	virtual UV get_uv(const Vec3f& point) const;
 
 	Vec3f center;
 	float radius;
-	std::shared_ptr<Material> material;
 };
 
-bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const {
+bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &intersectionInfo) const {
 	INCREMENT_RAY_PRIMITIVES_TEST_STATISTICS;
 	Vec3f oc = r.origin() - center;
 	float a = dot(r.direction(), r.direction());
@@ -38,24 +37,22 @@ bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &r
 	if (discriminant > 0) {
 		float temp = (-b - sqrt(discriminant))/ a;
 		if (temp < tmax && temp > tmin){
-			rec.t = temp;
-			rec.hit_point = r.point_at_parameter(rec.t);
-			rec.normal = (rec.hit_point - center) / radius;
-			rec.material = material;
-			rec.uv = get_uv(rec.normal);
-			rec.hit_something = true;
+			intersectionInfo.t = temp;
+			intersectionInfo.hit_point = r.point_at_parameter(intersectionInfo.t);
+			intersectionInfo.normal = (intersectionInfo.hit_point - center) / radius;
+			intersectionInfo.uv = get_uv(intersectionInfo.normal);
+			intersectionInfo.hit_something = true;
 			INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
 			return true;
 		}
 
 		temp = (-b + sqrt(discriminant))/ a;
 		if (temp < tmax && temp > tmin){
-			rec.t = temp;
-			rec.hit_point = r.point_at_parameter(rec.t);
-			rec.normal = (rec.hit_point - center) / radius;
-			rec.material = material;
-			rec.uv = get_uv(rec.normal);
-			rec.hit_something = true;
+			intersectionInfo.t = temp;
+			intersectionInfo.hit_point = r.point_at_parameter(intersectionInfo.t);
+			intersectionInfo.normal = (intersectionInfo.hit_point - center) / radius;
+			intersectionInfo.uv = get_uv(intersectionInfo.normal);
+			intersectionInfo.hit_something = true;
 			INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
 			return true;
 		}

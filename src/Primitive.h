@@ -1,54 +1,84 @@
 /*
  * Primitive.h
  *
- *  Created on: Nov 23, 2016
+ *  Created on: May 28, 2017
  *      Author: bogdan
  */
 
-#ifndef TRACERAPTOR_PRIMITIVE_H_
-#define TRACERAPTOR_PRIMITIVE_H_
+#ifndef SRC_PRIMITIVE_H_
+#define SRC_PRIMITIVE_H_
 
-#include <Primitive.h>
-#include <Vec.h>
-#include <Ray.h>
+#include <Shape.h>
+#include <Material.h>
+#include <BBox.h>
+#include <Intersection.h>
 
 namespace traceraptor {
 
-class Material;
-class BBox;
-class Primitive;
-
-class UV {
-public:
-	UV(float u, float v) : u(u), v(v) {}
-
-	float u;
-	float v;
-};
-
-class IntersectionInfo {
-public:
-	IntersectionInfo() : t(0), uv(0,0), hit_point(), normal(), material(NULL), hit_something(false) {}
-
-    float t;
-    UV uv;
-    Vec3f hit_point;
-    Vec3f normal;
-    std::shared_ptr<Material> material;
-    bool hit_something;
-};
-
 class Primitive {
 public:
-	Primitive() {}
-    virtual ~Primitive() {}
+	virtual const std::shared_ptr<Material> GetMaterial() const = 0;
+	virtual bool Intersect(const Ray &ray, float tmin, float tmax, IntersectionInfo &rec) const = 0;
+	virtual BBox GetBounds() const = 0;
+	virtual Vec3f GetCentroid() const = 0;
+	virtual ~Primitive() {}
+};
 
-    virtual bool Intersect(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const = 0;
-    virtual BBox get_bbox() const = 0;
-    virtual Vec3f get_centroid() const = 0;
-    virtual UV get_uv(const Vec3f& point) const = 0;
+class GeometricPrimitive : public Primitive {
+  public:
+	GeometricPrimitive(std::shared_ptr<Shape> shape, std::shared_ptr<Material> material) :
+		shape(shape),
+		material(material) { }
+
+	virtual bool Intersect(const Ray &ray, float tmin, float tmax, IntersectionInfo &intersectionInfo) const {
+		bool isIntersected = shape->Intersect(ray, tmin, tmax, intersectionInfo);
+		if (isIntersected){
+            intersectionInfo.shape = shape;
+            intersectionInfo.material = material;
+		} else {
+			intersectionInfo.shape = nullptr;
+			intersectionInfo.material = nullptr;
+		}
+
+		return isIntersected;
+	}
+
+	virtual const std::shared_ptr<Material> GetMaterial() const {
+		return material;
+	}
+
+	virtual BBox GetBounds() const {
+		return shape->get_bbox();
+	}
+
+	virtual Vec3f GetCentroid() const {
+		return shape->get_centroid();
+	}
+
+	virtual ~GeometricPrimitive() { }
+
+private:
+	std::shared_ptr<Shape> shape;
+	std::shared_ptr<Material> material;
+};
+
+class Aggregate : public Primitive {
+  public:
+	virtual BBox GetBounds() const {
+		return BBox(Vec3f({0.0f, 0.0f, 0.0f}));
+	}
+
+	virtual const std::shared_ptr<Material> GetMaterial() const {
+		return nullptr;
+	}
+
+	virtual Vec3f GetCentroid() const {
+		return Vec3f({1.0f, 1.0f, 1.0f});
+	}
+
+	virtual ~Aggregate() { }
 };
 
 } /* namespace traceraptor */
 
-#endif /* TRACERAPTOR_HITABLE_H_ */
+#endif /* SRC_PRIMITIVE_H_ */

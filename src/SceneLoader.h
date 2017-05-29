@@ -8,7 +8,7 @@
 #ifndef SRC_SCENELOADER_H_
 #define SRC_SCENELOADER_H_
 
-#include "Triangle.h"
+#include <Primitive.h>
 #include <string>
 #include <vector>
 

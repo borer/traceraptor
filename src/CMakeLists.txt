@@ -1,12 +1,13 @@
 list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/integrators")
+list(APPEND CUSTOM_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/shapes")
 
 set(sources
   Image.cpp
   BBox.cpp
   BVH.cpp
-  Triangle.cpp
   SceneLoader.cpp
   integrators/Integrator.cpp
+  shapes/Triangle.cpp
 )
 
 # Build library

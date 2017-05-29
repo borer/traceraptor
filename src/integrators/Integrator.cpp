@@ -6,6 +6,7 @@
  */
 
 #include <integrators/Integrator.h>
+#include <Material.h>
 
 namespace traceraptor {
 
@@ -17,12 +18,13 @@ RGBColor SimpleIntegrator::Li(const Ray& ray, const BVH& world, Sampler& sampler
 	RGBColor shadeColor { 1.0f, 1.0f, 1.0f };
 	for (int current_ray_bounce = 0;; current_ray_bounce++) {
 		if (world.getIntersection(rayIn, rec, false)) {
+			const std::shared_ptr<Material> intersectedMaterial = rec.material;
 			Vec3f attenuation;
-			Vec3f emitted = rec.material->emitted(rayIn, rec);
+			Vec3f emitted = intersectedMaterial->emitted(rayIn, rec);
 			Ray scattered;
 
 			if (current_ray_bounce < max_ray_bounce
-					&& rec.material->scatter(rayIn, rec, sampler,
+					&& intersectedMaterial->scatter(rayIn, rec, sampler,
 							attenuation, scattered)) {
 				shadeColor *= emitted + attenuation;
 				rayIn = scattered;

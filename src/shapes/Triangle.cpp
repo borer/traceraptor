@@ -10,12 +10,10 @@ TriangleMesh::TriangleMesh(int nTriangles,
                            int nVertices,
                            const std::vector<Vec3f> V,
                            const std::vector<Vec3f> N,
-                           const std::vector<Vec2f> UV,
-                           std::shared_ptr<Material> obj_material)
+                           const std::vector<Vec2f> UV)
 		: nTriangles(nTriangles),
 		  nVertices(nVertices),
-		  vertexIndices(vertexIndices),
-		  material(obj_material) {
+		  vertexIndices(vertexIndices) {
 
 	//TODO: Transform mesh vertices to world space
 	v.reset(new Vec3f[nVertices]);
@@ -89,7 +87,6 @@ bool Triangle::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo 
 	rec.t = t;
 	rec.hit_point = r.point_at_parameter(rec.t);
 	rec.normal = normalize(cross(edge1, edge2));
-	rec.material = mesh->material;
 	rec.uv = get_uv(rec.normal);
 	rec.hit_something = true;
 	INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
@@ -113,23 +110,21 @@ UV Triangle::get_uv(const Vec3f& point) const {
 	return UV(0,0);
 }
 
-std::vector<std::shared_ptr<Primitive>> CreateTriangleMesh(int nTriangles,
+std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(int nTriangles,
                                                            const std::vector<int> vertexIndices,
                                                            int nVertices,
                                                            const std::vector<Vec3f> p,
                                                            const std::vector<Vec3f> n,
-                                                           const std::vector<Vec2f> uv,
-                                                           std::shared_ptr<Material> obj_material) {
+                                                           const std::vector<Vec2f> uv) {
 
     std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(nTriangles,
                                                                         vertexIndices,
                                                                         nVertices,
                                                                         p,
                                                                         n,
-                                                                        uv,
-                                                                        obj_material);
+                                                                        uv);
     
-    std::vector<std::shared_ptr<Primitive>> tris;
+    std::vector<std::shared_ptr<Shape>> tris;
     tris.reserve(nTriangles);
     for (int i = 0; i < nTriangles; ++i)
         tris.push_back(std::make_shared<Triangle>(mesh, i));

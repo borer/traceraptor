@@ -13,14 +13,13 @@
 
 #include <Logger.h>
 #include <MathUtil.h>
-#include <Primitive.h>
 #include <Vec.h>
 #include <Color.h>
 #include <Ray.h>
 #include <Camera.h>
-#include <Material.h>
 #include <BVH.h>
 #include <RayTracingStatistics.h>
+#include <Shape.h>
 
 namespace traceraptor {
 
