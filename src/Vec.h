@@ -45,6 +45,23 @@ public:
 
     /// copy constructor form array
     constexpr Vec(const std::array<T, N>& vv) : std::array<T, N>{vv} {}
+
+    constexpr T x() const {
+    	assert(1 <= (*this).size());
+    	return (*this)[0];
+    }
+    constexpr T y() const {
+    	assert(2 <= (*this).size());
+    	return (*this)[1];
+    }
+    constexpr T z() const {
+    	assert(3 <= (*this).size());
+    	return (*this)[2];
+    }
+    constexpr T w() const {
+    	assert(4 <= (*this).size());
+    	return (*this)[3];
+    }
 };
 
 using Vec1f = Vec<float, 1>;

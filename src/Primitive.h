@@ -12,6 +12,7 @@
 #include <Material.h>
 #include <BBox.h>
 #include <Intersection.h>
+#include <Transform.h>
 
 namespace traceraptor {
 
@@ -60,6 +61,39 @@ class GeometricPrimitive : public Primitive {
 private:
 	std::shared_ptr<Shape> shape;
 	std::shared_ptr<Material> material;
+};
+
+class TransformedPrimitive : public Primitive {
+  public:
+    TransformedPrimitive(std::shared_ptr<Primitive> primitive,
+                         const Transform &PrimitiveToWorld)
+        : primitive(primitive), PrimitiveToWorld(PrimitiveToWorld) {}
+
+    virtual bool Intersect(const Ray &ray, float tmin, float tmax, IntersectionInfo &intersectionInfo) const{
+    	if (PrimitiveToWorld.IsIdentity()) {
+    		return primitive->Intersect(ray, tmin, tmax, intersectionInfo);
+    	} else {
+    		Ray transformedRay = Inverse(PrimitiveToWorld)(ray);
+//    		Ray transformedRay = PrimitiveToWorld(ray);
+    		if (!primitive->Intersect(transformedRay, tmin, tmax, intersectionInfo)) return false;
+    		PrimitiveToWorld(intersectionInfo);
+    		return true;
+    	}
+    }
+
+    virtual const std::shared_ptr<Material> GetMaterial() const { return primitive->GetMaterial(); }
+
+    virtual BBox GetBounds() const {
+    	return PrimitiveToWorld(primitive->GetBounds());
+    }
+
+    virtual Vec3f GetCentroid() const {
+    	return PrimitiveToWorld(primitive->GetCentroid());
+    }
+
+  private:
+    std::shared_ptr<Primitive> primitive;
+    const Transform PrimitiveToWorld;
 };
 
 class Aggregate : public Primitive {

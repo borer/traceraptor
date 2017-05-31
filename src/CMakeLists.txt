@@ -6,6 +6,7 @@ set(sources
   BBox.cpp
   BVH.cpp
   SceneLoader.cpp
+  Transform.cpp
   integrators/Integrator.cpp
   shapes/Triangle.cpp
 )

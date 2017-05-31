@@ -5,6 +5,13 @@
  *      Author: bogdan
  */
 
+//#define TRACERAPTOR_FLOAT_AS_DOUBLE
+#ifdef TRACERAPTOR_FLOAT_AS_DOUBLE
+typedef double Float;
+#else
+typedef float Float;
+#endif  // TRACERAPTOR_FLOAT_AS_DOUBLE
+
 #ifndef TRACERAPTOR_UTIL_MATH_H_
 #define TRACERAPTOR_UTIL_MATH_H_
 
@@ -16,13 +23,13 @@ namespace traceraptor {
 
 class Sampler {
 public:
-	Sampler(float seed = 1.234f) {
+	Sampler(Float seed = 1.234f) {
 		prng = std::mt19937(seed);
-		distribution = std::uniform_real_distribution<float>(0.0, 1.0);
+		distribution = std::uniform_real_distribution<Float>(0.0, 1.0);
 	}
 
     // generates random number [0,1)
-    float random01f() {
+	Float random01f() {
     	return distribution(prng);
     }
 
@@ -45,10 +52,16 @@ public:
 
 private:
     std::mt19937 prng;
-    std::uniform_real_distribution<float> distribution;
+    std::uniform_real_distribution<Float> distribution;
 };
 
 constexpr inline int pow2(int x) { return 1 << x; }
+
+static constexpr Float Pi = 3.14159265358979323846;
+
+constexpr inline Float Radians(Float deg) { return (Pi / 180) * deg; }
+
+constexpr inline Float Degrees(Float rad) { return (180 / Pi) * rad; }
 
 } /* namespace traceraptor */
 
