@@ -1,7 +1,6 @@
 include_directories(${CUSTOM_INCLUDE_DIRECTORIES})
 
 file(GLOB TEST_SOURCES *.cpp)
-file(GLOB TRACERAPTOR_SOURCES ../src/*.cpp)
 
 #set enable testing
 enable_testing()
@@ -36,6 +35,8 @@ foreach(filename ${TEST_SOURCES})
         PRIVATE
         ${DEFAULT_COMPILE_OPTIONS}
     )
+    
+    target_link_libraries(${testname} ${traceraptorLib})
 	
 	#configure for testing
 	add_test(${testname} ${testname})
