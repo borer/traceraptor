@@ -99,34 +99,42 @@ public:
     }
 
     template <typename T>
-    inline Vec<T, 3> operator()(const Vec<T, 3> &v) const {
+    inline Vec<T, 3> TransformPoint(const Vec<T, 3> &v) const {
         T x = v.x(), y = v.y(), z = v.z();
         return Vec<T,3>({m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z + m.m[0][3],
                          m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z + m.m[1][3],
                          m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z + m.m[2][3]});
     }
 
+    template <typename T>
+    inline Vec<T, 3> TransformDirection(const Vec<T, 3> &v) const {
+    	T x = v.x(), y = v.y(), z = v.z();
+    	return Vec<T,3>({m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z,
+    		m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z,
+			m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z});
+    }
+
     inline Ray operator()(const Ray &r) const {
-    	Vec3f o = (*this)(r.o);
-    	Vec3f d = (*this)(r.dir);
+    	Vec3f o = this->TransformPoint(r.o);
+    	Vec3f d = this->TransformDirection(r.dir);
     	return Ray(o, d);
     }
 
     inline void operator()(IntersectionInfo &intersectionInfo) const {
-        intersectionInfo.hit_point = (*this)(intersectionInfo.hit_point);
-        intersectionInfo.normal = (*this)(intersectionInfo.normal);
+        intersectionInfo.hit_point = this->TransformPoint(intersectionInfo.hit_point);
+        intersectionInfo.normal = this->TransformDirection(intersectionInfo.normal);
     }
 
     inline BBox operator()(const BBox &b) const {
         const Transform &M = *this;
-        BBox ret(M(Vec3f({b.min.x(), b.min.y(), b.min.z()})));
-        ret.expandToInclude(M(Vec3f({b.min.x(), b.min.y(), b.max.z()})));
-        ret.expandToInclude(M(Vec3f({b.min.x(), b.max.y(), b.min.z()})));
-        ret.expandToInclude(M(Vec3f({b.min.x(), b.max.y(), b.max.z()})));
-        ret.expandToInclude(M(Vec3f({b.max.x(), b.min.y(), b.min.z()})));
-        ret.expandToInclude(M(Vec3f({b.max.x(), b.min.y(), b.max.z()})));
-        ret.expandToInclude(M(Vec3f({b.max.x(), b.max.y(), b.min.z()})));
-        ret.expandToInclude(M(Vec3f({b.max.x(), b.max.y(), b.max.z()})));
+        BBox ret(M.TransformPoint(Vec3f({b.min.x(), b.min.y(), b.min.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.min.x(), b.min.y(), b.max.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.min.x(), b.max.y(), b.min.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.min.x(), b.max.y(), b.max.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.min.y(), b.min.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.min.y(), b.max.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.max.y(), b.min.z()})));
+        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.max.y(), b.max.z()})));
 
         return ret;
     }

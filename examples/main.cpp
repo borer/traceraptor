@@ -97,18 +97,23 @@ void manual_setup(std::string filename) {
 
 	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, 20, float(width)/float(height), aperture, dist_to_focus);
 
-	std::vector<std::shared_ptr<Primitive>> list(6);
-	list[0] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,0.f,0.f}, 0.5)),
+	std::vector<std::shared_ptr<Primitive>> list(7);
+    
+    std::shared_ptr<GeometricPrimitive> baseMateSphere = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,0.0, 0.f}, 0.5)),
 			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.8f, 0.3f, 0.3f}))));
-	list[1] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,-1000.5f,0.f}, 1000)),
+    Transform offsetTransform = Translate(Vec3f({0.0f, 0.5f, -1.0f}));
+
+    list[0] = baseMateSphere;
+    list[1] = std::make_shared<TransformedPrimitive>(baseMateSphere, offsetTransform);
+	list[2] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,-1000.5f,0.f}, 1000)),
 			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5}))));
-	list[2] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1.f,0.f,0.f}, 0.5)),
+	list[3] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1.f,0.f,0.f}, 0.5)),
 			std::shared_ptr<Material>(new Metal(Vec3f{0.7f, 0.6f, 0.5f}, 0.2)));
-	list[3] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1.f,0.f,0.f}, 0.5)),
+	list[4] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1.f,0.f,0.f}, 0.5)),
 			std::shared_ptr<Material>(new Dielectric(1.2)));
-	list[4] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1,0,0}, -0.45)),
+	list[5] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1,0,0}, -0.45)),
 			std::shared_ptr<Material>(new Dielectric(1.2)));
-	list[5] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1,0,-1}, 0.5)),
+	list[6] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1,0,-1}, 0.5)),
 			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1}))));
 
     BVH world(list);

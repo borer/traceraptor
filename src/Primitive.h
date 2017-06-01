@@ -88,7 +88,7 @@ class TransformedPrimitive : public Primitive {
     }
 
     virtual Vec3f GetCentroid() const {
-    	return PrimitiveToWorld(primitive->GetCentroid());
+    	return PrimitiveToWorld.TransformPoint(primitive->GetCentroid());
     }
 
   private:
