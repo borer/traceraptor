@@ -8,6 +8,7 @@
 #ifndef TRACERAPTOR_VEC_H_
 #define TRACERAPTOR_VEC_H_
 
+#include <Traceraptor.h>
 #include <iostream>
 #include <cmath>
 #include <cassert>
@@ -64,10 +65,10 @@ public:
     }
 };
 
-using Vec1f = Vec<float, 1>;
-using Vec2f = Vec<float, 2>;
-using Vec3f = Vec<float, 3>;
-using Vec4f = Vec<float, 4>;
+using Vec1f = Vec<Float, 1>;
+using Vec2f = Vec<Float, 2>;
+using Vec3f = Vec<Float, 3>;
+using Vec4f = Vec<Float, 4>;
 
 using Vec1i = Vec<int, 1>;
 using Vec2i = Vec<int, 2>;
@@ -75,21 +76,26 @@ using Vec3i = Vec<int, 3>;
 using Vec4i = Vec<int, 4>;
 
 template <typename T, size_t N>
-constexpr inline Vec<T, N> zero_vec() {
+constexpr inline Vec<T, N> init_vec(T value) {
     Vec<T, N> c;
-    for (size_t i = 0; i < N; i++) c[i] = 0;
+    for (size_t i = 0; i < N; i++) c[i] = value;
     return c;
 }
 
-const auto Zero1f = zero_vec<float, 1>();
-const auto Zero2f = zero_vec<float, 2>();
-const auto Zero3f = zero_vec<float, 3>();
-const auto Zero4f = zero_vec<float, 4>();
+const auto Zero1f = init_vec<float, 1>(0.0f);
+const auto Zero2f = init_vec<float, 2>(0.0f);
+const auto Zero3f = init_vec<float, 3>(0.0f);
+const auto Zero4f = init_vec<float, 4>(0.0f);
 
-const auto Zero1i = zero_vec<int, 1>();
-const auto Zero2i = zero_vec<int, 2>();
-const auto Zero3i = zero_vec<int, 3>();
-const auto Zero4i = zero_vec<int, 4>();
+const auto One1f = init_vec<float, 1>(1.0f);
+const auto One2f = init_vec<float, 2>(1.0f);
+const auto One3f = init_vec<float, 3>(1.0f);
+const auto One4f = init_vec<float, 4>(1.0f);
+
+const auto Zero1i = init_vec<int, 1>(0);
+const auto Zero2i = init_vec<int, 2>(0);
+const auto Zero3i = init_vec<int, 3>(0);
+const auto Zero4i = init_vec<int, 4>(0);
 
 template <typename T, size_t N>
 constexpr inline std::istream& operator >> (std::istream &is, const Vec<T, N>& a) {

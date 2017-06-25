@@ -40,9 +40,8 @@ class Triangle: public Shape {
 public:
 	Triangle(std::shared_ptr<TriangleMesh> mesh, int triNumber);
 
-	virtual bool Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const;
+	virtual bool Intersect(const Ray &r, IntersectionInfo &rec) const;
 	virtual BBox get_bbox() const;
-	virtual Vec3f get_centroid() const;
 	virtual UV get_uv(const Vec3f& point) const;
 
 private:

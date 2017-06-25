@@ -18,16 +18,15 @@ namespace traceraptor {
 class Sphere: public Shape {
 public:
 	Sphere(Vec3f center, float radius) : center(center), radius(radius) {};
-	virtual bool Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &intersectionInfo) const;
+	virtual bool Intersect(const Ray &r, IntersectionInfo &intersectionInfo) const;
 	virtual BBox get_bbox() const;
-	virtual Vec3f get_centroid() const;
 	virtual UV get_uv(const Vec3f& point) const;
 
 	Vec3f center;
 	float radius;
 };
 
-bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &intersectionInfo) const {
+bool Sphere::Intersect(const Ray &r, IntersectionInfo &intersectionInfo) const {
 	INCREMENT_RAY_PRIMITIVES_TEST_STATISTICS;
 	Vec3f oc = r.origin() - center;
 	float a = dot(r.direction(), r.direction());
@@ -36,7 +35,7 @@ bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &i
 	float discriminant = b*b - a*c;
 	if (discriminant > 0) {
 		float temp = (-b - sqrt(discriminant))/ a;
-		if (temp < tmax && temp > tmin){
+		if (temp < r.tMax && temp > Ray::default_tmin) {
 			intersectionInfo.t = temp;
 			intersectionInfo.hit_point = r.point_at_parameter(intersectionInfo.t);
 			intersectionInfo.normal = (intersectionInfo.hit_point - center) / radius;
@@ -47,7 +46,7 @@ bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &i
 		}
 
 		temp = (-b + sqrt(discriminant))/ a;
-		if (temp < tmax && temp > tmin){
+		if (temp < r.tMax && temp > Ray::default_tmin) {
 			intersectionInfo.t = temp;
 			intersectionInfo.hit_point = r.point_at_parameter(intersectionInfo.t);
 			intersectionInfo.normal = (intersectionInfo.hit_point - center) / radius;
@@ -63,10 +62,6 @@ bool Sphere::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &i
 
 BBox Sphere::get_bbox() const {
 	return BBox(center-Vec3f{radius,radius,radius}, center+Vec3f{radius,radius,radius});
-}
-
-Vec3f Sphere::get_centroid() const {
-    return center;
 }
 
 UV Sphere::get_uv(const Vec3f& point) const {

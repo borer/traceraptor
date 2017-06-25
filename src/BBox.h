@@ -16,17 +16,22 @@ namespace traceraptor {
 
 class BBox {
 public:
-	BBox() {}
+	BBox();
 	BBox(const Vec3f& min, const Vec3f& max);
 	BBox(const Vec3f& p);
 
-	bool intersect(const Ray& ray, float &tmin, float &tmax) const;
-	void expandToInclude(const Vec3f& p);
-	void expandToInclude(const BBox& b);
-	unsigned int maxDimension() const;
-	float surfaceArea() const;
+	bool Intersect(const Ray& ray, float &tmin, float &tmax) const;
+	bool IntersectP(const Ray &ray, const int dirIsNeg[3]) const;
+	void ExpandToInclude(const Vec3f& p);
+	void ExpandToInclude(const BBox& b);
+	Vec3f GetCentroid() const;
+	unsigned int MaxDimension() const;
+	float SurfaceArea() const;
+	Vec3f Offset(const Vec3f &p) const;
 
-	Vec3f min, max, extent, centroid;
+	const Vec3f &operator[](int i) const;
+
+	Vec3f pMin, pMax, extent, centroid;
 };
 
 } /* namespace traceraptor */

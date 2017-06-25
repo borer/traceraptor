@@ -117,7 +117,7 @@ public:
     inline Ray operator()(const Ray &r) const {
     	Vec3f o = this->TransformPoint(r.o);
     	Vec3f d = this->TransformDirection(r.dir);
-    	return Ray(o, d);
+    	return Ray(o, d, r.tMax);
     }
 
     inline void operator()(IntersectionInfo &intersectionInfo) const {
@@ -127,14 +127,14 @@ public:
 
     inline BBox operator()(const BBox &b) const {
         const Transform &M = *this;
-        BBox ret(M.TransformPoint(Vec3f({b.min.x(), b.min.y(), b.min.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.min.x(), b.min.y(), b.max.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.min.x(), b.max.y(), b.min.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.min.x(), b.max.y(), b.max.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.min.y(), b.min.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.min.y(), b.max.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.max.y(), b.min.z()})));
-        ret.expandToInclude(M.TransformPoint(Vec3f({b.max.x(), b.max.y(), b.max.z()})));
+        BBox ret(M.TransformPoint(Vec3f({b.pMin.x(), b.pMin.y(), b.pMin.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMin.x(), b.pMin.y(), b.pMax.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMin.x(), b.pMax.y(), b.pMin.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMin.x(), b.pMax.y(), b.pMax.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMax.x(), b.pMin.y(), b.pMin.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMax.x(), b.pMin.y(), b.pMax.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMax.x(), b.pMax.y(), b.pMin.z()})));
+        ret.ExpandToInclude(M.TransformPoint(Vec3f({b.pMax.x(), b.pMax.y(), b.pMax.z()})));
 
         return ret;
     }

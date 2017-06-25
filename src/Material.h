@@ -8,14 +8,13 @@
 #ifndef TRACERAPTOR_MATERIAL_H_
 #define TRACERAPTOR_MATERIAL_H_
 
+#include <Traceraptor.h>
 #include <MathUtil.h>
 #include <Vec.h>
 #include <Ray.h>
 #include <Texture.h>
 #include <Shape.h>
 #include <Intersection.h>
-
-#define UNUSED(expr) (void)(expr)
 
 namespace traceraptor {
 

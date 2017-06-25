@@ -52,7 +52,7 @@ Triangle::Triangle(std::shared_ptr<TriangleMesh> mesh, int triNumber) {
 	bounds = std::make_shared<BBox>(min, max);
 };
 
-bool Triangle::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const {
+bool Triangle::Intersect(const Ray &r, IntersectionInfo &rec) const {
 	INCREMENT_RAY_PRIMITIVES_TEST_STATISTICS;
 
 	const Vec3f& v0 = mesh->v[vi[0]];
@@ -82,7 +82,7 @@ bool Triangle::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo 
 
 	// compute and check ray parameter
 	auto t = dot(edge2, qvec) * inv_det;
-	if (t < tmin || t > tmax) return false;
+	if (t < Ray::default_tmin || t > r.tMax) return false;
 
 	rec.t = t;
 	rec.hit_point = r.point_at_parameter(rec.t);
@@ -95,18 +95,11 @@ bool Triangle::Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo 
 }
 
 BBox Triangle::get_bbox() const {
-	return BBox(bounds->min, bounds->max);
-}
-
-Vec3f Triangle::get_centroid() const {
-	const Vec3f& v0 = mesh->v[vi[0]];
-	const Vec3f& v1 = mesh->v[vi[1]];
-	const Vec3f& v2 = mesh->v[vi[2]];
-
-    return (v0+v1+v2)/3.0f;
+	return BBox(bounds->pMin, bounds->pMax);
 }
 
 UV Triangle::get_uv(const Vec3f& point) const {
+	UNUSED(point);
 	return UV(0,0);
 }
 

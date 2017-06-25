@@ -6,7 +6,8 @@
 #include <shapes/Sphere.h>
 #include <shapes/Triangle.h>
 #include <Renderer.h>
-#include <BVH.h>
+#include <accelerators/BVH.h>
+#include <accelerators/BVHAccel.h>
 #include <Texture.h>
 #include <SceneLoader.h>
 #include <integrators/Integrator.h>
@@ -84,11 +85,18 @@ void random_setup(std::string filename){
 	renderer.render_scene(camera, world, filename, 4);
 }
 
+std::shared_ptr<GeometricPrimitive> MakeSphere(Vec3f origin, float radius, Vec3f color){
+	std::shared_ptr<GeometricPrimitive> sphere =
+			std::make_shared<GeometricPrimitive>(std::make_shared<Sphere>(origin, radius),
+			std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(color)));
+	return sphere;
+}
+
 void manual_setup(std::string filename) {
 	const int width = 800;
 	const int height = 400;
-	const int ns = 100;
-	const int MAX_RAY_BOUNCE = 50;
+	const int ns = 10;
+	const int MAX_RAY_BOUNCE = 10;
 
 	Vec3f lookfrom{-7,3,-4};
 	Vec3f lookat{0,0,0};
@@ -99,24 +107,22 @@ void manual_setup(std::string filename) {
 
 	std::vector<std::shared_ptr<Primitive>> list(7);
     
-    std::shared_ptr<GeometricPrimitive> baseMateSphere = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,0.0, 0.f}, 0.5)),
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.8f, 0.3f, 0.3f}))));
+    std::shared_ptr<GeometricPrimitive> baseMateSphere = MakeSphere(Vec3f{0.f, 0.0f, 0.f}, 0.5, Vec3f{0.8f, 0.3f, 0.3f});
     Transform offsetTransform = Translate(Vec3f({0.0f, 0.5f, -1.0f}));
 
     list[0] = baseMateSphere;
     list[1] = std::make_shared<TransformedPrimitive>(baseMateSphere, offsetTransform);
-	list[2] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{0.f,-1000.5f,0.f}, 1000)),
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.5, 0.5, 0.5}))));
-	list[3] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1.f,0.f,0.f}, 0.5)),
-			std::shared_ptr<Material>(new Metal(Vec3f{0.7f, 0.6f, 0.5f}, 0.2)));
-	list[4] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1.f,0.f,0.f}, 0.5)),
-			std::shared_ptr<Material>(new Dielectric(1.2)));
-	list[5] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{-1,0,0}, -0.45)),
-			std::shared_ptr<Material>(new Dielectric(1.2)));
-	list[6] = std::make_shared<GeometricPrimitive>(std::shared_ptr<Shape>(new Sphere(Vec3f{1,0,-1}, 0.5)),
-			std::shared_ptr<Material>(new Lambertian(std::make_shared<ConstantTexture>(Vec3f{0.4, 0.2, 0.1}))));
+	list[2] = MakeSphere(Vec3f{0.f,-1000.5f,0.f}, 1000, Vec3f{0.5f, 0.5f, 0.5f});
+	list[3] = std::make_shared<GeometricPrimitive>(std::make_shared<Sphere>(Vec3f{1.f,0.f,0.f}, 0.5),
+			std::make_shared<Metal>(Vec3f{0.7f, 0.6f, 0.5f}, 0.2));
+	list[4] = std::make_shared<GeometricPrimitive>(std::make_shared<Sphere>(Vec3f{-1.f,0.f,0.f}, 0.5),
+			std::make_shared<Dielectric>(1.2));
+	list[5] = std::make_shared<GeometricPrimitive>(std::make_shared<Sphere>(Vec3f{-1,0,0}, -0.45),
+			std::make_shared<Dielectric>(1.2));
+	list[6] = MakeSphere(Vec3f{1,0,-1}, 0.5, Vec3f{0.4, 0.2, 0.1});
 
     BVH world(list);
+//	BVHAccel world(list);
     SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
     Renderer renderer(width, height, ns, simpleIntegrator);
     renderer.render_scene(camera, world, filename, 4);
@@ -183,10 +189,10 @@ int main(int argc, char* argv[]) {
 
 	RayTracingStatistics::getInstance().start_time_tracking();
 
-//	manual_setup(filename);
+	manual_setup(filename);
 //	random_setup(filename);
 //	manual_setup_light(filename);
-	manual_triangle(filename);
+//	manual_triangle(filename);
 
 	RayTracingStatistics::getInstance().end_time_tracking();
 	std::string report = RayTracingStatistics::getInstance().generate_report();

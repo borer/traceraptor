@@ -5,21 +5,23 @@
  *      Author: bogdan
  */
 
-//#define TRACERAPTOR_FLOAT_AS_DOUBLE
-#ifdef TRACERAPTOR_FLOAT_AS_DOUBLE
-typedef double Float;
-#else
-typedef float Float;
-#endif  // TRACERAPTOR_FLOAT_AS_DOUBLE
-
 #ifndef TRACERAPTOR_UTIL_MATH_H_
 #define TRACERAPTOR_UTIL_MATH_H_
 
 #include <Vec.h>
+#include <Traceraptor.h>
 #include <random>
 #include <cmath>
 
 namespace traceraptor {
+
+static constexpr Float Pi = 3.14159265358979323846;
+static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
+static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
+
+constexpr inline int pow2(int x) { return 1 << x; }
+constexpr inline Float Radians(Float deg) { return (Pi / 180) * deg; }
+constexpr inline Float Degrees(Float rad) { return (180 / Pi) * rad; }
 
 class Sampler {
 public:
@@ -54,14 +56,6 @@ private:
     std::mt19937 prng;
     std::uniform_real_distribution<Float> distribution;
 };
-
-constexpr inline int pow2(int x) { return 1 << x; }
-
-static constexpr Float Pi = 3.14159265358979323846;
-
-constexpr inline Float Radians(Float deg) { return (Pi / 180) * deg; }
-
-constexpr inline Float Degrees(Float rad) { return (180 / Pi) * rad; }
 
 } /* namespace traceraptor */
 

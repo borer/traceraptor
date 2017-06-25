@@ -7,7 +7,7 @@
 #include <Shape.h>
 #include "shapes/Sphere.h"
 #include "Renderer.h"
-#include "BVH.h"
+#include "accelerators/BVH.h"
 #include "Texture.h"
 
 using namespace traceraptor;

@@ -22,20 +22,19 @@ struct BVHFlatNode {
 };
 
 class BVH : public Aggregate {
-	static const float default_tmin;
-	static const float default_tmax;
 
 	unsigned int nNodes, nLeafs, leafSize;
 	std::vector<std::shared_ptr<Primitive>> build_prims;
 
 	void build();
+    bool getIntersection(const Ray& ray, IntersectionInfo &intersection, bool occlusion) const;
 
 	std::vector<BVHFlatNode> flatTree;
 
 public:
 	BVH(std::vector<std::shared_ptr<Primitive>> &objects, unsigned int leafSize = 4);
-	bool getIntersection(const Ray& ray, IntersectionInfo &intersection, bool occlusion) const;
-	virtual bool Intersect(const Ray &r, float t_min, float t_max, IntersectionInfo &rec) const;
+	virtual bool Intersect(const Ray &ray, IntersectionInfo &rec) const;
+	virtual bool IntersectP(const Ray &ray) const;
 
 	virtual ~BVH();
 };

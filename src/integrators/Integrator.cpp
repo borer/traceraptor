@@ -12,12 +12,12 @@ namespace traceraptor {
 
 Integrator::~Integrator() {}
 
-RGBColor SimpleIntegrator::Li(const Ray& ray, const BVH& world, Sampler& sampler) const {
+RGBColor SimpleIntegrator::Li(const Ray& ray, const Aggregate& world, Sampler& sampler) const {
 	IntersectionInfo rec;
 	Ray rayIn = ray;
 	RGBColor shadeColor { 1.0f, 1.0f, 1.0f };
 	for (int current_ray_bounce = 0;; current_ray_bounce++) {
-		if (world.getIntersection(rayIn, rec, false)) {
+		if (world.Intersect(rayIn, rec) ) {
 			const std::shared_ptr<Material> intersectedMaterial = rec.material;
 			Vec3f attenuation;
 			Vec3f emitted = intersectedMaterial->emitted(rayIn, rec);

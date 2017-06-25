@@ -20,9 +20,12 @@ public:
 	Shape() {}
     virtual ~Shape() {}
 
-    virtual bool Intersect(const Ray &r, float tmin, float tmax, IntersectionInfo &rec) const = 0;
+    virtual bool Intersect(const Ray &r, IntersectionInfo &rec) const = 0;
+    virtual bool IntersectP(const Ray &ray) const {
+        IntersectionInfo temp;
+    	return Intersect(ray, temp);
+    }
     virtual BBox get_bbox() const = 0;
-    virtual Vec3f get_centroid() const = 0;
     virtual UV get_uv(const Vec3f& point) const = 0;
 };
 

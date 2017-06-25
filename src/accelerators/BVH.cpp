@@ -10,9 +10,6 @@
 
 namespace traceraptor {
 
-const float BVH::default_tmin = 0.001f;
-const float BVH::default_tmax = MAXFLOAT;
-
 //! Node for storing state information during traversal.
 struct BVHTraversal {
   unsigned int i; // Node
@@ -21,8 +18,13 @@ struct BVHTraversal {
   BVHTraversal(int _i, float _mint) : i(_i), min_t(_mint) { }
 };
 
-bool BVH::Intersect(const Ray &ray, float t_min, float t_max, IntersectionInfo &intersection) const {
+bool BVH::Intersect(const Ray &ray, IntersectionInfo &intersection) const {
 	return getIntersection(ray, intersection, false);
+}
+
+bool BVH::IntersectP(const Ray &ray) const {
+	IntersectionInfo temp;
+	return getIntersection(ray, temp, true);
 }
 
 //! - Compute the nearest intersection of all objects within the tree.
@@ -63,7 +65,7 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
     	IntersectionInfo current;
 
         const std::shared_ptr<Primitive> obj = build_prims[node.start+o];
-        bool hit = obj->Intersect(ray, default_tmin, default_tmax, current);
+        bool hit = obj->Intersect(ray, current);
 
         if (hit) {
           // If we're only looking for occlusion, then any hit is good enough
@@ -80,9 +82,9 @@ bool BVH::getIntersection(const Ray& ray, IntersectionInfo &intersection, bool o
 
     } else { // Not a leaf
 
-      bool hitc0 = flatTree[node_index+1].bbox.intersect(ray, t_min0, t_max0);
+      bool hitc0 = flatTree[node_index+1].bbox.Intersect(ray, t_min0, t_max0);
       INCREMENT_RAY_BBOX_TEST_STATISTICS
-      bool hitc1 = flatTree[node_index+node.rightOffset].bbox.intersect(ray, t_min1, t_max1);
+      bool hitc1 = flatTree[node_index+node.rightOffset].bbox.Intersect(ray, t_min1, t_max1);
       INCREMENT_RAY_BBOX_TEST_STATISTICS
 
       if(hitc0 && hitc1) {
@@ -187,8 +189,8 @@ void BVH::build()
     BBox bc((build_prims[start])->GetCentroid());
     for(unsigned int p = start; p < end; ++p) {
       std::shared_ptr<Primitive> build_prim = (build_prims[p]);
-      bb.expandToInclude(build_prim->GetBounds());
-      bc.expandToInclude(build_prim->GetCentroid());
+      bb.ExpandToInclude(build_prim->GetBounds());
+      bc.ExpandToInclude(build_prim->GetCentroid());
     }
     node.bbox = bb;
 
@@ -218,10 +220,10 @@ void BVH::build()
       continue;
 
     // Set the split dimensions
-    unsigned int split_dim = bc.maxDimension();
+    unsigned int split_dim = bc.MaxDimension();
 
     // Split on the center of the longest axis
-    float split_coord = .5f * (bc.min[split_dim] + bc.max[split_dim]);
+    float split_coord = .5f * (bc.pMin[split_dim] + bc.pMax[split_dim]);
 
     // Partition the list of objects on this split
     unsigned int mid = start;

@@ -18,7 +18,7 @@
 #include <Ray.h>
 #include <Camera.h>
 #include <Material.h>
-#include <BVH.h>
+#include <accelerators/BVH.h>
 #include <RayTracingStatistics.h>
 #include <integrators/Integrator.h>
 #include <Shape.h>
@@ -43,7 +43,7 @@ public:
 		ns(ns),
 		integrator(integrator) { }
 
-	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera& camera, const BVH& world, Image& image) {
+	void render_chunk(std::shared_ptr<RenderChunk> chunk, const Camera& camera, const Aggregate& world, Image& image) {
 		float sampler_seed = chunk->min_x + chunk->min_y;
 		Sampler sampler(sampler_seed);
 		for (int i = chunk->min_x; i < chunk->max_x; i++) {
@@ -63,7 +63,7 @@ public:
 		}
 	}
 
-	void render_worker(const std::vector<std::shared_ptr<RenderChunk>>& chunks, const Camera& camera, const BVH& world, Image& image) {
+	void render_worker(const std::vector<std::shared_ptr<RenderChunk>>& chunks, const Camera& camera, const Aggregate& world, Image& image) {
 		int chunks_size = chunks.size();
 		for(int i = 0; i < chunks_size; i++) {
 			if (!chunks[i]->is_processed.test_and_set()) {
@@ -73,7 +73,7 @@ public:
 		}
 	}
 
-	void render_scene(const Camera& camera, const BVH& world, const std::string& filename, const int number_threads = 1) {
+	void render_scene(const Camera& camera, const Aggregate& world, const std::string& filename, const int number_threads = 1) {
 		Image image(width, height);
 
 		Logger::log_debug("Beginning ray tracing");
