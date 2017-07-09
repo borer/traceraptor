@@ -30,7 +30,7 @@ struct BVHBuildNode {
     void InitInterior(int axis, BVHBuildNode *c0, BVHBuildNode *c1) {
         children[0] = c0;
         children[1] = c1;
-        c0->bounds.ExpandToInclude(c1->bounds);
+        bounds = BBox::Union(c0->bounds, c1->bounds);
         splitAxis = axis;
         nPrimitives = 0;
     }
@@ -265,7 +265,7 @@ bool BVHAccel::Intersect(const Ray &ray, IntersectionInfo &isect) const{
 				for (int i = 0; i < node->nPrimitives; ++i)
 					if (primitives[node->primitivesOffset + i]->Intersect(ray, isect))
 						hit = true;
-				if (toVisitOffset == 0) break;
+                if (toVisitOffset == 0) break;
 				currentNodeIndex = nodesToVisit[--toVisitOffset];
 			} else {
 				// Put far BVH node on _nodesToVisit_ stack, advance to near
@@ -279,10 +279,11 @@ bool BVHAccel::Intersect(const Ray &ray, IntersectionInfo &isect) const{
 				}
 			}
 		} else {
-			if (toVisitOffset == 0) break;
+            if (toVisitOffset == 0) break;
 			currentNodeIndex = nodesToVisit[--toVisitOffset];
 		}
 	}
+    
 	return hit;
 }
 

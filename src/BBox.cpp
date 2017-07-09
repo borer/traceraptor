@@ -117,5 +117,14 @@ bool BBox::IntersectP(const Ray &ray, const int dirIsNeg[3]) const {
     if (tzMax < tMax) tMax = tzMax;
     return (tMin < ray.tMax) && (tMax > Ray::default_tmin);
 }
+    
+BBox BBox::Union(const BBox &b1, const BBox &b2) {
+    return BBox(Vec3f{std::min(b1.pMin.x(), b2.pMin.x()),
+                    std::min(b1.pMin.y(), b2.pMin.y()),
+                    std::min(b1.pMin.z(), b2.pMin.z())},
+                Vec3f{std::max(b1.pMax.x(), b2.pMax.x()),
+                    std::max(b1.pMax.y(), b2.pMax.y()),
+                    std::max(b1.pMax.z(), b2.pMax.z())});
+}
 
 } /* namespace traceraptor */

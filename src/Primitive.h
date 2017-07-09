@@ -42,9 +42,6 @@ class GeometricPrimitive : public Primitive {
 			ray.tMax = intersectionInfo.t;
             intersectionInfo.shape = shape;
             intersectionInfo.material = material;
-		} else {
-			intersectionInfo.shape = nullptr;
-			intersectionInfo.material = nullptr;
 		}
 
 		return isIntersected;

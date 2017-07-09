@@ -32,6 +32,8 @@ public:
 	const Vec3f &operator[](int i) const;
 
 	Vec3f pMin, pMax, extent, centroid;
+    
+    static BBox Union(const BBox &a, const BBox &b);
 };
 
 } /* namespace traceraptor */

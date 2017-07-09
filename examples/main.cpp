@@ -121,8 +121,8 @@ void manual_setup(std::string filename) {
 			std::make_shared<Dielectric>(1.2));
 	list[6] = MakeSphere(Vec3f{1,0,-1}, 0.5, Vec3f{0.4, 0.2, 0.1});
 
-    BVH world(list);
-//	BVHAccel world(list);
+//    BVH world(list);
+	BVHAccel world(list);
     SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
     Renderer renderer(width, height, ns, simpleIntegrator);
     renderer.render_scene(camera, world, filename, 4);
