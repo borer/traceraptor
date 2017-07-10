@@ -259,7 +259,7 @@ bool BVHAccel::Intersect(const Ray &ray, IntersectionInfo &isect) const{
 	while (true) {
 		const LinearBVHNode *node = &nodes[currentNodeIndex];
 		// Check ray against BVH node
-		if (node->bounds.IntersectP(ray, dirIsNeg)) {
+		if (node->bounds.IntersectP(ray)) {
 			if (node->nPrimitives > 0) {
 				// Intersect ray with primitives in leaf BVH node
 				for (int i = 0; i < node->nPrimitives; ++i)

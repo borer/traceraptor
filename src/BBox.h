@@ -22,6 +22,7 @@ public:
 
 	bool Intersect(const Ray& ray, float &tmin, float &tmax) const;
 	bool IntersectP(const Ray &ray, const int dirIsNeg[3]) const;
+	bool IntersectP(const Ray &ray) const;
 	void ExpandToInclude(const Vec3f& p);
 	void ExpandToInclude(const BBox& b);
 	Vec3f GetCentroid() const;

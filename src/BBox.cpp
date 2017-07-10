@@ -91,6 +91,11 @@ bool BBox::Intersect(const Ray& ray, float &tmin, float &tmax) const {
 	return tmax >= max_comparator(0.0f, tmin);
 }
 
+bool BBox::IntersectP(const Ray& ray) const {
+	float tmin, tmax;
+	return Intersect(ray, tmin, tmax);
+}
+
 bool BBox::IntersectP(const Ray &ray, const int dirIsNeg[3]) const {
     const BBox &bounds = *this;
     // Check for ray intersection against $x$ and $y$ slabs
