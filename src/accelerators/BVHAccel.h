@@ -31,12 +31,12 @@ public:
 	~BVHAccel();
 
 private:
-    BVHBuildNode *recursiveBuild(
+	std::shared_ptr<BVHBuildNode> recursiveBuild(
         std::vector<BVHPrimitiveInfo> &primitiveInfo,
         int start, int end, int *totalNodes,
         std::vector<std::shared_ptr<Primitive>> &orderedPrims);
 
-    int flattenBVHTree(BVHBuildNode *node, int *offset);
+    int flattenBVHTree(std::shared_ptr<BVHBuildNode> node, int *offset);
 
     const int maxPrimsInNode;
     const SplitMethod splitMethod;

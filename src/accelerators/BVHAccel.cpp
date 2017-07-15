@@ -27,7 +27,7 @@ struct BVHBuildNode {
         bounds = b;
         children[0] = children[1] = nullptr;
     }
-    void InitInterior(int axis, BVHBuildNode *c0, BVHBuildNode *c1) {
+    void InitInterior(int axis, std::shared_ptr<BVHBuildNode> c0, std::shared_ptr<BVHBuildNode> c1) {
         children[0] = c0;
         children[1] = c1;
         bounds = BBox::Union(c0->bounds, c1->bounds);
@@ -35,7 +35,7 @@ struct BVHBuildNode {
         nPrimitives = 0;
     }
     BBox bounds;
-    BVHBuildNode *children[2];
+    std::shared_ptr<BVHBuildNode> children[2];
     int splitAxis, firstPrimOffset, nPrimitives;
 };
 
@@ -67,7 +67,7 @@ BVHAccel::BVHAccel(const std::vector<std::shared_ptr<Primitive>> &p,
 	int totalNodes = 0;
 	std::vector<std::shared_ptr<Primitive>> orderedPrims;
 	orderedPrims.reserve(primitives.size());
-	BVHBuildNode *root = recursiveBuild(primitiveInfo, 0, primitives.size(),
+	std::shared_ptr<BVHBuildNode> root = recursiveBuild(primitiveInfo, 0, primitives.size(),
 			&totalNodes, orderedPrims);
 	primitives.swap(orderedPrims);
 
@@ -82,11 +82,11 @@ struct BucketInfo {
     BBox bounds;
 };
 
-BVHBuildNode *BVHAccel::recursiveBuild(std::vector<BVHPrimitiveInfo> &primitiveInfo, int start,
+std::shared_ptr<BVHBuildNode> BVHAccel::recursiveBuild(std::vector<BVHPrimitiveInfo> &primitiveInfo, int start,
     int end, int *totalNodes,
     std::vector<std::shared_ptr<Primitive>> &orderedPrims) {
 //    CHECK_NE(start, end);
-    BVHBuildNode *node = new BVHBuildNode();
+	std::shared_ptr<BVHBuildNode> node = std::make_shared<BVHBuildNode>();
     (*totalNodes)++;
     // Compute bounds of all primitives in BVH node
     BBox bounds;
@@ -330,7 +330,7 @@ Vec3f BVHAccel::GetCentroid() const {
 	return nodes ? nodes[0].bounds.GetCentroid() : BBox().GetCentroid();
 }
 
-int BVHAccel::flattenBVHTree(BVHBuildNode *node, int *offset) {
+int BVHAccel::flattenBVHTree(std::shared_ptr<BVHBuildNode> node, int *offset) {
     LinearBVHNode *linearNode = &nodes[*offset];
     linearNode->bounds = node->bounds;
     int myOffset = (*offset)++;
