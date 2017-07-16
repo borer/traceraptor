@@ -80,20 +80,24 @@ public:
 
 		std::vector<std::shared_ptr<RenderChunk>> chunks = calculate_render_chuncks(32);
 
-		std::vector<std::thread> renderThreads(number_threads);
-		for(int i = 0 ; i < number_threads; ++i) {
-			Logger::log_debug("Starting render thread " + std::to_string(i));
-			renderThreads[i] = std::thread(&Renderer::render_worker,
-					this,
-					std::ref(chunks),
-					std::ref(camera),
-					std::ref(world),
-					std::ref(image));
-		}
+		if (number_threads == 1) {
+			render_worker(chunks, camera, world, image);
+		} else {
+			std::vector<std::thread> renderThreads(number_threads);
+			for(int i = 0 ; i < number_threads; ++i) {
+				Logger::log_debug("Starting render thread " + std::to_string(i));
+				renderThreads[i] = std::thread(&Renderer::render_worker,
+						this,
+						std::ref(chunks),
+						std::ref(camera),
+						std::ref(world),
+						std::ref(image));
+			}
 
-		for(int i = 0 ; i < number_threads; ++i) {
-			renderThreads[i].join();
-			Logger::log_debug("Render thread " + std::to_string(i) + " has finished");
+			for(int i = 0 ; i < number_threads; ++i) {
+				renderThreads[i].join();
+				Logger::log_debug("Render thread " + std::to_string(i) + " has finished");
+			}
 		}
 
 		Logger::log_debug("Image writing");
