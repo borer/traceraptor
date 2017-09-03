@@ -23,9 +23,9 @@ RGBColor SimpleIntegrator::Li(const Ray& ray, const Aggregate& world, Sampler& s
 			Vec3f emitted = intersectedMaterial->emitted(rayIn, rec);
 			Ray scattered;
 
-			if (current_ray_bounce < max_ray_bounce
-					&& intersectedMaterial->scatter(rayIn, rec, sampler,
-							attenuation, scattered)) {
+			if (current_ray_bounce < max_ray_bounce &&
+                intersectedMaterial->scatter(rayIn, rec, sampler, attenuation, scattered))
+            {
 				shadeColor *= emitted + attenuation;
 				rayIn = scattered;
 			} else {

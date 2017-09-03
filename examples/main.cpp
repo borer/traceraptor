@@ -131,7 +131,7 @@ void manual_setup(std::string filename) {
 void manual_setup_light(std::string filename) {
 	const int width = 800;
 	const int height = 400;
-	const int ns = 50;
+	const int ns = 10;
 	const int MAX_RAY_BOUNCE = 8;
 
 	Vec3f lookfrom{-7,3,-4};
@@ -160,13 +160,13 @@ void manual_setup_light(std::string filename) {
     renderer.render_scene(camera, world, filename, 4);
 }
 
-void manual_triangle(std::string filename) {
+void obj_file_load(std::string filename) {
 	const int width = 500;
 	const int height = 600;
 	const int ns = 30;
 	const int MAX_RAY_BOUNCE = 8;
 
-	Vec3f lookfrom{-6, 4, -9};
+	Vec3f lookfrom{6, 4, 9};
 	Vec3f lookat{0,0,0};
 	float dist_to_focus = 10.0;
 	float aperture = 0.0;
@@ -191,10 +191,10 @@ int main(int argc, char* argv[]) {
 
 	RayTracingStatistics::getInstance().start_time_tracking();
 
-//	manual_setup(filename);
 //	random_setup(filename);
+	manual_setup(filename);
 //	manual_setup_light(filename);
-	manual_triangle(filename);
+//	obj_file_load(filename);
 
 	RayTracingStatistics::getInstance().end_time_tracking();
 	std::string report = RayTracingStatistics::getInstance().generate_report();

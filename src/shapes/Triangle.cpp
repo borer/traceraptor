@@ -69,10 +69,12 @@ bool Triangle::Intersect(const Ray &r, IntersectionInfo &rec) const {
 	// compute and check ray parameter
 	auto t = dot(edge2, qvec) * inv_det;
 	if (t < Ray::default_tmin || t > r.tMax) return false;
-
+    
+    Vec3f triangleNormal = normalize(cross(edge1, edge2));
+    
 	rec.t = t;
 	rec.hit_point = r.point_at_parameter(rec.t);
-	rec.normal = normalize(cross(edge1, edge2));
+	rec.normal = normalize(triangleNormal - normalize(r.dir));
     rec.uv = get_uv(rec.normal);
 	rec.hit_something = true;
 	INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
