@@ -5,44 +5,30 @@
 
 namespace traceraptor {
 
-TriangleMesh::TriangleMesh(int nTriangles,
-                           const std::vector<int> vertexIndices,
-                           int nVertices,
-                           const std::vector<Vec3f> V,
-                           const std::vector<Vec3f> N,
-                           const std::vector<Vec2f> UV)
-		: nTriangles(nTriangles),
-		  nVertices(nVertices),
-		  vertexIndices(vertexIndices) {
+TriangleMesh::TriangleMesh(std::shared_ptr<std::vector<TriangleIndex>> triangles,
+                           std::shared_ptr<std::vector<Vec3f>> V,
+                           std::shared_ptr<std::vector<Vec3f>> N,
+                           std::shared_ptr<std::vector<Vec2f>> uv)
+		:
+        triangles(triangles),
+        V(V),
+        N(N),
+        uv(uv) {
+            //TODO: Transform mesh vertices to world space
+        }
 
-	//TODO: Transform mesh vertices to world space
-	v.reset(new Vec3f[nVertices]);
-	for (int i = 0; i < nVertices; ++i) v[i] = V[i];
-
-	// Copy _UV_, _N_, and _S_ vertex data, if present
-	if (!UV.empty()) {
-		uv.reset(new Vec2f[nVertices]);
-        for (int i = 0; i < nVertices; ++i) uv[i] = UV[i];
-    } else {
-        uv.reset();
-    }
-              
-	if (!N.empty()) {
-		n.reset(new Vec3f[nVertices]);
-		for (int i = 0; i < nVertices; ++i) n[i] = N[i];
-    } else {
-        n.reset();
-    }
-}
-
-Triangle::Triangle(std::shared_ptr<TriangleMesh> mesh, int triNumber) {
+Triangle::Triangle(std::shared_ptr<TriangleMesh> mesh, int triangleNumber) {
 
     this->mesh = mesh;
-	vi = &mesh->vertexIndices[3 * triNumber];
+	triangleIndex = mesh->triangles->at(triangleNumber); //this is wrong, we need to map triangle number to index
 
-	const Vec3f& v0 = mesh->v[vi[0]];
-	const Vec3f& v1 = mesh->v[vi[1]];
-	const Vec3f& v2 = mesh->v[vi[2]];
+    printf("get triangle vertex index %zu , %zu, %zu \n", triangleIndex.vertexIndices[0],
+                                                           triangleIndex.vertexIndices[1],
+                                                           triangleIndex.vertexIndices[2]);
+    
+	const Vec3f& v0 = mesh->V->at(triangleIndex.vertexIndices[0]);
+	const Vec3f& v1 = mesh->V->at(triangleIndex.vertexIndices[1]);
+	const Vec3f& v2 = mesh->V->at(triangleIndex.vertexIndices[2]);
 
 	Vec3f min, max;
 	min = component_min(v0, v1);
@@ -55,10 +41,10 @@ Triangle::Triangle(std::shared_ptr<TriangleMesh> mesh, int triNumber) {
 bool Triangle::Intersect(const Ray &r, IntersectionInfo &rec) const {
 	INCREMENT_RAY_PRIMITIVES_TEST_STATISTICS;
 
-	const Vec3f& v0 = mesh->v[vi[0]];
-	const Vec3f& v1 = mesh->v[vi[1]];
-	const Vec3f& v2 = mesh->v[vi[2]];
-
+    const Vec3f& v0 = mesh->V->at(triangleIndex.vertexIndices[0]);
+    const Vec3f& v1 = mesh->V->at(triangleIndex.vertexIndices[1]);
+    const Vec3f& v2 = mesh->V->at(triangleIndex.vertexIndices[2]);
+    
 	Vec3f edge1 = v1 - v0;
 	Vec3f edge2 = v2 - v0;
 
@@ -72,13 +58,13 @@ bool Triangle::Intersect(const Ray &r, IntersectionInfo &rec) const {
 
 	// compute and check first bricentric coordinated
 	auto tvec = r.o - v0;
-	auto u = dot(tvec, pvec) * inv_det;
-	if (u < 0 || u > 1) return false;
+//	auto u = dot(tvec, pvec) * inv_det;
+//	if (u < 0 || u > 1) return false;
 
 	// compute and check second bricentric coordinated
 	auto qvec = cross(tvec, edge1);
-	auto v = dot(r.dir, qvec) * inv_det;
-	if (v < 0 || u + v > 1) return false;
+//	auto v = dot(r.dir, qvec) * inv_det;
+//	if (v < 0 || u + v > 1) return false;
 
 	// compute and check ray parameter
 	auto t = dot(edge2, qvec) * inv_det;
@@ -87,7 +73,7 @@ bool Triangle::Intersect(const Ray &r, IntersectionInfo &rec) const {
 	rec.t = t;
 	rec.hit_point = r.point_at_parameter(rec.t);
 	rec.normal = normalize(cross(edge1, edge2));
-	rec.uv = get_uv(rec.normal);
+    rec.uv = get_uv(rec.normal);
 	rec.hit_something = true;
 	INCREMENT_RAY_PRIMITIVES_INTERSECTIONS_STATISTICS
 
@@ -103,24 +89,18 @@ UV Triangle::get_uv(const Vec3f& point) const {
 	return UV(0,0);
 }
 
-std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(int nTriangles,
-                                                           const std::vector<int> vertexIndices,
-                                                           int nVertices,
-                                                           const std::vector<Vec3f> p,
-                                                           const std::vector<Vec3f> n,
-                                                           const std::vector<Vec2f> uv) {
+std::unique_ptr<std::vector<std::shared_ptr<Shape>>> CreateTriangleMesh(std::shared_ptr<std::vector<TriangleIndex>> triangles,
+                                                       std::shared_ptr<std::vector<Vec3f>> V,
+                                                       std::shared_ptr<std::vector<Vec3f>> N,
+                                                       std::shared_ptr<std::vector<Vec2f>> uv) {
 
-    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(nTriangles,
-                                                                        vertexIndices,
-                                                                        nVertices,
-                                                                        p,
-                                                                        n,
-                                                                        uv);
-    
-    std::vector<std::shared_ptr<Shape>> tris;
-    tris.reserve(nTriangles);
-    for (int i = 0; i < nTriangles; ++i)
-        tris.push_back(std::make_shared<Triangle>(mesh, i));
+    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(triangles,V,N,uv);
+    size_t totalTriangles = triangles->size();
+    std::unique_ptr<std::vector<std::shared_ptr<Shape>>> tris = std::make_unique<std::vector<std::shared_ptr<Shape>>>();
+    for (size_t i = 0; i < totalTriangles; ++i){
+        std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(mesh, i);
+        tris->push_back(triangle);
+    }
 
     return tris;
 }

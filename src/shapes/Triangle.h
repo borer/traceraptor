@@ -13,27 +13,27 @@
 #include <BBox.h>
 
 namespace traceraptor {
+    
+struct TriangleIndex {
+    size_t vertexIndices[3];
+    size_t normalIndices[3];
+};
 
-std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(int nTriangles,
-                                                           const std::vector<int> vertexIndices,
-                                                           int nVertices,
-                                                           const std::vector<Vec3f> p,
-                                                           const std::vector<Vec3f> n,
-                                                           const std::vector<Vec2f> uv);
+std::unique_ptr<std::vector<std::shared_ptr<Shape>>> CreateTriangleMesh(std::shared_ptr<std::vector<TriangleIndex>> triangles,
+                                                           std::shared_ptr<std::vector<Vec3f>> p,
+                                                           std::shared_ptr<std::vector<Vec3f>> n,
+                                                           std::shared_ptr<std::vector<Vec2f>> uv);
 
 struct TriangleMesh {
-	TriangleMesh(int nTriangles,
-                 const std::vector<int> vertexIndices,
-                 int nVertices,
-                 const std::vector<Vec3f> V,
-                 const std::vector<Vec3f> N,
-                 const std::vector<Vec2f> uv);
+	TriangleMesh(std::shared_ptr<std::vector<TriangleIndex>> triangles,
+                 std::shared_ptr<std::vector<Vec3f>> V,
+                 std::shared_ptr<std::vector<Vec3f>> N,
+                 std::shared_ptr<std::vector<Vec2f>> uv);
 
-	const int nTriangles, nVertices;
-	std::vector<int> vertexIndices;
-	std::unique_ptr<Vec3f[]> v; //vertices
-	std::unique_ptr<Vec3f[]> n; //normals
-	std::unique_ptr<Vec2f[]> uv;
+	std::shared_ptr<std::vector<TriangleIndex>> triangles;
+    std::shared_ptr<std::vector<Vec3f>> V;
+    std::shared_ptr<std::vector<Vec3f>> N;
+    std::shared_ptr<std::vector<Vec2f>> uv;
 };
 
 class Triangle: public Shape {
@@ -46,7 +46,7 @@ public:
 
 private:
 	std::shared_ptr<TriangleMesh> mesh;
-	const int *vi;
+	TriangleIndex triangleIndex;
 
 	std::shared_ptr<BBox> bounds;
 };

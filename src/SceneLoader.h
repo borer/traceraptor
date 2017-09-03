@@ -19,7 +19,7 @@ using namespace std;
 class SceneLoader {
 public:
 	SceneLoader();
-	vector<shared_ptr<Primitive>> Load(string const& inputFileName);
+	std::unique_ptr<vector<shared_ptr<Primitive>>> Load(string const& inputFileName);
 	virtual ~SceneLoader();
 };
 

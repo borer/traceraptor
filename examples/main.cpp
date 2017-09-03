@@ -166,7 +166,7 @@ void manual_triangle(std::string filename) {
 	const int ns = 30;
 	const int MAX_RAY_BOUNCE = 8;
 
-	Vec3f lookfrom{0,1,4.5f};
+	Vec3f lookfrom{-6, 4, -9};
 	Vec3f lookat{0,0,0};
 	float dist_to_focus = 10.0;
 	float aperture = 0.0;
@@ -175,10 +175,12 @@ void manual_triangle(std::string filename) {
 	Camera camera(lookfrom, lookat, Vec3f{0,1,0}, vfov, float(width)/float(height), aperture, dist_to_focus);
 
 	SceneLoader sceneLoader;
-//	vector<shared_ptr<Primitive>> scene = sceneLoader.Load("cornell_box.obj");
-    vector<shared_ptr<Primitive>> scene = sceneLoader.Load("simple-box.obj");
+//	std::unique_ptr<vector<shared_ptr<Primitive>>> scene = sceneLoader.Load("cornell_box.obj");
+//    std::unique_ptr<vector<shared_ptr<Primitive>>> scene = sceneLoader.Load("simple-box.obj");
+    std::unique_ptr<vector<shared_ptr<Primitive>>> scene = sceneLoader.Load("simple-purple-box.obj");
 
-    BVH world(scene);
+    BVHAccel world(*scene);
+//    BVH world(scene);
     SimpleIntegrator simpleIntegrator(true, MAX_RAY_BOUNCE);
     Renderer renderer(width, height, ns, simpleIntegrator);
     renderer.render_scene(camera, world, filename, 4);
@@ -189,10 +191,10 @@ int main(int argc, char* argv[]) {
 
 	RayTracingStatistics::getInstance().start_time_tracking();
 
-	manual_setup(filename);
+//	manual_setup(filename);
 //	random_setup(filename);
 //	manual_setup_light(filename);
-//	manual_triangle(filename);
+	manual_triangle(filename);
 
 	RayTracingStatistics::getInstance().end_time_tracking();
 	std::string report = RayTracingStatistics::getInstance().generate_report();

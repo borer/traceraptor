@@ -65,11 +65,13 @@ BBox Sphere::get_bbox() const {
 }
 
 UV Sphere::get_uv(const Vec3f& point) const {
-	 float phi = atan2(point[2], point[0]);
-	 float theta = asin(point[1]);
-	 float u = 1-(phi + M_PI) / (2*M_PI);
-	 float v = (theta + M_PI/2) / M_PI;
+//	 float phi = atan2(point[2], point[0]);
+//	 float theta = asin(point[1]);
+//	 float u = 1-(phi + M_PI) / (2*M_PI);
+//	 float v = (theta + M_PI/2) / M_PI;
 
+    float u = 1.0f;
+    float v = 1.0f;
 	 return UV(u,v);
 }
 
